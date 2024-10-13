@@ -73,6 +73,39 @@ Fifthly, the data should be sampled from time periods and geographical locations
 Sixthly, the data should be independent, without duplicates and avoiding highly correlated cases resulting from sampling within family units.
 
 ### Approach
+In this project, we will consider a range of machine learning techniques tailored to the goal of predicting severe COVID-19 outcomes among diabetes patients. The primary focus will be on balancing predictive power with interpretability to ensure the model’s results can be understood and trusted by healthcare professionals. Below is an outline of the techniques and methods that will be used.
+
+#### Data Pre-processing
+In this phase, we will ensure the quality and consistency of the data before modeling. 
+First, missing data will be handled using appropriate imputation techniques, such as mean or mode imputation for basic patterns, 
+while more sophisticated methods like K-Nearest Neighbors (KNN) imputation may be applied to complex missing data patterns. 
+
+Continuous variables like vitals and lab results will be standardized to a uniform scale when possible, to ensure consistent input across models. In cases where they do not follow normal distributions we will try transformations, such as logarithmic transformations, to obtain a more similar one.
+In the cases where this does not succeed, we will use transformations to other distributions, such as exponential or beta distributions.
+After this, outliers the data will be identified and addressed to avoid skewing model predictions.
+
+Lastly, class imbalance is expected, with fewer severe cases than non-severe, so we will use methods such as SMOTE to balance the training data. 
+
+#### Feature Subset Selection
+To improve model performance and ensure interpretability, we will use feature selection techniques to create several subsets of features to train the models. 
+
+Firstly, filter feature selection – specifically Recursive Feature Elimination (RFE) – will be used to remove less important features, using metrics of feature relevance, such as Chi-Square and Mutual Information.
+
+Secondly, we will employ a wrapper method for feature subset selection (FSS) using a small Multi-Layer Perceptron (MLP) as the evaluation model, combined with an annealing-based search strategy. This approach will help explore the feature space more efficiently by allowing for both local and global exploration, minimizing the risk of getting trapped in suboptimal feature combinations.
+
+The annealing process begins by randomly selecting a subset of features and training the MLP model on this subset. The performance is evaluated using cross-validation, and at each iteration, we make small random adjustments to the feature set by adding or removing features. The modified feature subset is then evaluated, and the decision to accept the new subset is based on a probability that decreases over time (the "cooling schedule"), allowing for less optimal solutions early in the process but gradually focusing on the best-performing feature sets as the method progresses.
+
+The MLP will be kept shallow to reduce complexity and avoid overfitting during the search process. With its ability to capture nonlinear feature interactions, the small MLP provides the flexibility needed for finding optimal feature combinations while still maintaining a manageable model size.
+
+This annealing-based approach will allow us to efficiently search the feature space for a globally optimal subset, balancing exploration and exploitation to ensure that we select the most relevant features for predicting severe COVID-19 outcomes. The final subset of features will be used for model training and evaluation in later stages of the project.
+
+#### Modeling
+Several machine learning models will be explored during the modeling phase. We will begin with logistic regression as a baseline due to its simplicity and interpretability, allowing us to understand which variables are critical to predicting severe cases. Next, we will implement more advanced models like Random Forest, which combines multiple decision trees for higher accuracy while providing insight into feature importance. For further refinement, Gradient Boosting Machines (such as XGBoost) will be used to improve accuracy by correcting errors iteratively. If necessary, we will explore deep learning models, though their complexity and reduced interpretability mean they will only be considered if they show significant performance gains.
+
+#### Evaluation Metrics
+To evaluate model performance, we will use a set of carefully chosen metrics. We will use ROC-AUC, Cohen's Kappa, Sensitivity (or True Positive Rate) and F2 scores to evaluate the models. In cases where there are clear optimal model, we will priorize Sensitivity scores.
+
+Robustness will be assured through the utilization of bias-corrected 10-fold cross-validation to assure these scores accurately represent the behavior of the model in real world cases. 
 
 ## 4. Work Plan & Detailed Task Breakdown
 
