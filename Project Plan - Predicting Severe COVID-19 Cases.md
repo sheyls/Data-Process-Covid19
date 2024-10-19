@@ -45,127 +45,125 @@ Since our main objective is to reduce hospital resource usage and false positive
 ### Data
 
 In this section, we will delve into:
-1. the actual data we expect to get from each source
-1. the integrability
-1. ethical concerns
-1. completeness
-1. data cleanliness and required reconciliation
+
+1.  The actual data we expect to get from each source
+2.  the integrability
+3.  ethical concerns
+4.  completeness
+5.  data cleanliness and required reconciliation
 
 #### Data provided
+
 As described in the objective section, our data will be sourced from:
-1. Demographic data.
-2. Clinical data.
-3. Hospital admission data.
-4. Social and Behavioral Determinants of Health (SBDH).
 
-
+1.  Demographic data.
+2.  Clinical data.
+3.  Hospital admission data.
+4.  Social and Behavioral Determinants of Health (SBDH).
 
 #### Data access and formats
+
 To ensure a smooth and efficient integration of all datasets into our data science pipeline, we have outlined the following expectations and requirements for how the data should be provided to our team. These guidelines will help us manage data integration, access, and formatting effectively.
 
 ##### Acceptable formats
-We expect data to be delivered in standard formats that are compatible with our systems for ease of processing and integration. Preferred formats include:
 
-- CSV: Comma-separated values for structured data, suitable for demographic, clinical, hospital admission, and SBDH data. The CSV files should contain clear column headers and consistent data types.
-- JSON/XML: For semi-structured data, such as social and behavioral determinants of health (SBDH), or if the data contains hierarchical or nested information (e.g., survey results, API outputs).
-- Parquet: For larger datasets that need efficient storage and compression, especially for clinical or hospital admission data.
-- SQL/Database Exports: If data is stored in a relational database, we will accept exports in SQL format or direct access to database dumps (e.g., MySQL, PostgreSQL) where applicable.
+We expect data to be delivered in standard formats compatible with our systems to ease their processing and integration. Preferred formats include:
+
+-   CSV: Comma-separated values for structured data, suitable for demographic, clinical, hospital admission, and SBDH data. The CSV files should contain clear column headers and consistent data types.
+-   JSON/XML: For semi-structured data, such as social and behavioral determinants of health (SBDH), or if the data contains hierarchical or nested information (e.g., survey results, API outputs).
+-   Parquet: For larger datasets that need efficient storage and compression, especially for clinical or hospital admission data.
+-   SQL/Database Exports: If data is stored in a relational database, we will accept exports in SQL format or direct access to database dumps (e.g., MySQL, PostgreSQL) where applicable.
 
 ##### Metadata
+
 All data files should be well-documented, with data dictionaries provided to explain the meaning of each variable and with time stamping to accurately track when the data was captured.
 
 Every dataset should come with metadata that explains:
-- Field descriptions (e.g., what each column represents).
-- Units of measure, data types, and constraints.
-- Assumptions made during data collection.
-- Data Dictionary: A data dictionary outlining all variables, their types, potential categories, and ranges, if applicable.
-- Codebook: If data contains coded values (e.g., for demographic fields), a codebook explaining the meaning of each code should be included.
-- Source Documentation: Clear documentation of where the data originates (e.g., hospitals, clinical trials, surveys) and how it has been collected.
-- Transformation Records: A log of any transformations (e.g., filtering, aggregating, normalizing) that have been applied to the data from collection to delivery. This is crucial for understanding how raw data has evolved to its final form.
-- Version Control: Assurances that data updates or changes (e.g., new entries, modifications) are tracked with proper version control, so historical data can be reviewed or reverted if needed.
+
+-   Field descriptions (e.g., what each column represents).
+-   Units of measure, data types, and constraints.
+-   Assumptions made during data collection.
+-   Data Dictionary: A data dictionary outlining all variables, their types, potential categories, and ranges, if applicable.
+-   Codebook: If data contains coded values (e.g., for demographic fields), a codebook explaining the meaning of each code should be included.
+-   Source Documentation: Clear documentation of where the data originates (e.g., hospitals, clinical trials, surveys) and how it has been collected.
+-   Transformation Records: A log of any transformations (e.g., filtering, aggregating, normalizing) applied to the data from collection to delivery. This is crucial for understanding how raw data has evolved to its final form.
+-   Version Control: Assurances that data updates or changes (e.g., new entries, modifications) are tracked with proper version control, so historical data can be reviewed or reverted.
 
 ##### Data Access
+
 To facilitate efficient data integration, the data should be accessible by our data science team in a controlled and secure environment. We expect:
 
-- Single Point of Access: Data should be consolidated in a single location or repository to minimize delays. This could be a cloud-based folder or a shared database.
-- Role-Based Access: Access to data should be restricted based on roles, ensuring that only authorized personnel can retrieve sensitive information (e.g., clinical data).
-- Version Control: If the data will be updated periodically (e.g., clinical or hospital admission data), we require a system of versioning to track changes and prevent data corruption or inconsistency during analysis.
+-   Single Point of Access: All data should be consolidated in a single location or repository to minimize delays. The preferred options are cloud-based folders or a shared database.
+-   Role-Based Access: Access to data should be restricted based on roles, ensuring that only authorized personnel can retrieve sensitive information (e.g., clinical data).
+-   Version Control: If the data will be updated periodically (e.g., clinical or hospital admission data), we require a versioning system to track changes and prevent data corruption or inconsistency during analysis.
 
 #### Ethical concerns
-Due to the sensitive nature of the data sources ivolved in this project, we must address the main ethical concern of the data we will receive: data privacy and confidentiality. All data should have gone through a process of anonymization in order to assure that patients cannot be identified. Similarly, only data that is strictly necessary for the analysis will be provided in order to decrease the probability of identifying individuals through their unique situations. This will be detailed further in the Risk Analysis section.
 
- <!-- ##### Compliance with European regulations
-Data provided must comply with the regulation on health data under both the European Union - General Data Protection Regulation (GDPR) - and Spain - Data Protection Act. -->
+Due to the sensitive nature of the data sources involved in this project, we must address the main ethical concerns of the data we will receive: data privacy and confidentiality. All data should have gone through a process of anonymization to ensure that patients cannot be identified. Similarly, only data that is strictly necessary for the analysis will be provided to decrease the probability of identifying individuals through their unique situations. This will be detailed further in the Risk Analysis section.
 
 #### Completeness
-Some comment as to how much missing data we will allow.
-In columnar data, where we can ascertain with metrics the missing data, something like 80% percent of data must be there.
-In non-columnar data, no idea.
+
+Some comments as to how much missing data we will allow. In columnar data, where we can ascertain with metrics the missing data, something like 80% percent of data must be there. In non-columnar data, no idea.
 
 #### Data Quality
-##### Identifier consistency
-- Unique and Stable Identifiers: Each entity (e.g., patient, hospital) should have a unique and persistent identifier (e.g., patient ID). These identifiers should remain consistent across different datasets and data handoffs.
-- No Duplicate Identifiers: Attributes of the data should not have overlapping identifiers (i.g. two 'Temperature' attributes for one patient).
-- Format Consistency: Identifiers must have consistent formats across datasets. For instance, if an identifier is numeric in one dataset, it should not be alphanumeric in another.
-##### Unit consistency
-All quantitative measurements (e.g., weight, height, temperature, time, distance) must use consistent units across datasets and should come with clearly stated units for each variable in order to ensure no misinterpretation of the data during analysis.
 
-##### Erroneous inputs
-The data provided should have gone through a basic value validation, checking that all values are within the allowed ranges.
+**Identifier consistency.**
 
-##### Missing data
-A policy on the handling of missing data should be provided in order to ensure that all missing values are treated correctly during the data science process. 
+-   Unique and Stable Identifiers: Each entity (e.g., patient, hospital) should have a unique and persistent identifier (e.g., patient ID). These identifiers should remain consistent across different datasets and data handoffs.
+-   No Duplicate Identifiers: The data attributes should not have overlapping identifiers (e.g. two 'Temperature' attributes for one patient).
+-   Format Consistency: Identifiers must have consistent formats across datasets. For instance, if an identifier is numeric in one dataset, it should not be alphanumeric in another.
 
-#### Representative data (remove the ordinals)
-In order to assure that the model's results will be replicable in practice, we will require that the data used is representative of the target population that will be predicted.
+**Unit consistency**. All quantitative measurements (e.g., weight, height, temperature, time, distance) must use consistent units across datasets and should come with clearly stated units for each variable to ensure no misinterpretation of the data during analysis.
 
-Firstly, each individual sampled should belong to the demographic subset we aim to predict, i.e. patients that have been diagnosed with diabetes and are in aged 40 to 60.
+**Erroneous inputs.** The data provided should have gone through a basic value validation, checking that all values are within the allowed ranges.
 
-Secondly, the experimental distribution of the features used should follow their actual distribution of these features in our target population.
+**Missing data.**A policy on the handling of missing data should be provided in order to ensure that all missing values are treated correctly during the data science process.
 
-Thirdly, the sample size should be adequate to train reliable models, which means large enough to capture possibly critical subgroups that would otherwise appear as outliers in the preprocessing of the data.
+#### Representative data
 
-Fourthly, the data should have balanced class distribution.
+To ensure that the model's results will be replicable in practice, we will require that the data used be representative of the predicted target population.
 
-Fifthly, the data should be sampled from time periods and geographical locations that are relevant to the target population. In our case, we expect the individuals sampled to represent the geographical density distributions of the territory of Spain, and be from the last year to correctly represent the rapidly changing nature of COVID-19.
+Firstly, each individual sampled should belong to the demographic subset we aim to predict, i.e. patients diagnosed with diabetes aged 40 to 60, and the empirical distribution, both the marginal distribution of the features and the joint distributions, used should closely follow the theoretical distribution of these features in our target population. This sampling should be extensive enough to capture possibly critical subgroups and decrease the margin of error due to the sampling process. This includes having a balanced class distribution.
 
-Sixthly, the data should be independent, without duplicates and avoiding highly correlated cases resulting from sampling within family units.
+Secondly, the data should be sampled from time periods and geographical locations relevant to the target population. In our case, we expect the individuals sampled to represent the geographical density distributions of Spain's territory and to be from the last year to correctly represent the rapidly changing nature of COVID-19.
+
+Thirdly, the data should be independent, without duplicates, and avoid highly correlated cases from sampling within family units.
 
 ### Approach
-In this project, we will consider a range of machine learning techniques tailored to the goal of predicting severe COVID-19 outcomes among diabetes patients. The primary focus will be on balancing predictive power with interpretability to ensure the model�s results can be understood and trusted by healthcare professionals. Below is an outline of the techniques and methods that will be used.
+
+In this project, we will consider a range of machine-learning techniques tailored to predict severe COVID-19 outcomes among diabetes patients. The primary focus will be on balancing predictive power with interpretability to ensure the model's results can be understood and trusted by healthcare professionals. Below is an outline of the techniques and methods that will be used.
 
 #### Data Pre-processing
-In this phase, we will ensure the quality and consistency of the data before modeling. 
-First, missing data will be handled using appropriate imputation techniques, such as mean or mode imputation for basic patterns, 
-while more sophisticated methods like K-Nearest Neighbors (KNN) imputation may be applied to complex missing data patterns. 
 
-Continuous variables like vitals and lab results will be standardized to a uniform scale when possible, to ensure consistent input across models. In cases where they do not follow normal distributions we will try transformations, such as logarithmic transformations, to obtain a more similar one.
-In the cases where this does not succeed, we will use transformations to other distributions, such as exponential or beta distributions.
-After this, outliers the data will be identified and addressed to avoid skewing model predictions.
+In this phase, we will ensure the quality and consistency of the data before modeling. First, missing data will be handled using appropriate imputation techniques, such as mean or mode imputation for basic patterns, while more sophisticated methods like K-Nearest Neighbors (KNN) imputation may be applied to complex missing data patterns.
 
-Lastly, class imbalance is expected, with fewer severe cases than non-severe, so we will use methods such as SMOTE to balance the training data. 
+Continuous variables like vitals and lab results will be standardized to a uniform scale when possible, to ensure consistent input across models. In cases where they do not follow normal distributions, we will try transformations, such as logarithmic transformations, to obtain a more similar one. In the cases where this does not perform well, we will use transformations to other distributions, such as exponential or beta distributions. After this, outliers in the data will be identified and addressed to avoid skewing model predictions.
+
+Lastly, class imbalance is expected, with fewer severe cases than non-severe, so we will use methods such as SMOTE to balance the training data.
 
 #### Feature Subset Selection
-To improve model performance and ensure interpretability, we will use feature selection techniques to create several subsets of features to train the models. 
 
-Firstly, filter feature selection � specifically Recursive Feature Elimination (RFE) � will be used to remove less important features, using metrics of feature relevance, such as Chi-Square and Mutual Information.
+To improve model performance and ensure interpretability, we will use feature selection techniques to create several subsets of features to train the models.
+
+Firstly, filter feature selection specifically Recursive Feature Elimination (RFE) will be used to remove less important features, using metrics of feature relevance, such as Chi-Square and Mutual Information.
 
 Secondly, we will employ a wrapper method for feature subset selection (FSS) using a small Multi-Layer Perceptron (MLP) as the evaluation model, combined with an annealing-based search strategy. This approach will help explore the feature space more efficiently by allowing for both local and global exploration, minimizing the risk of getting trapped in suboptimal feature combinations.
 
 The annealing process begins by randomly selecting a subset of features and training the MLP model on this subset. The performance is evaluated using cross-validation, and at each iteration, we make small random adjustments to the feature set by adding or removing features. The modified feature subset is then evaluated, and the decision to accept the new subset is based on a probability that decreases over time (the "cooling schedule"), allowing for less optimal solutions early in the process but gradually focusing on the best-performing feature sets as the method progresses.
 
-The MLP will be kept shallow to reduce complexity and avoid overfitting during the search process. With its ability to capture nonlinear feature interactions, the small MLP provides the flexibility needed for finding optimal feature combinations while still maintaining a manageable model size.
+The MLP will be kept shallow to reduce complexity and avoid overfitting during the search process. Its ability to capture nonlinear feature interactions provides the flexibility needed to find optimal feature combinations while still maintaining a manageable model size.
 
-This annealing-based approach will allow us to efficiently search the feature space for a globally optimal subset, balancing exploration and exploitation to ensure that we select the most relevant features for predicting severe COVID-19 outcomes. The final subset of features will be used for model training and evaluation in later stages of the project.
+This annealing-based approach will allow us to efficiently search the feature space for a globally optimal subset, balancing exploration and exploitation to ensure we select the most relevant features for predicting severe COVID-19 outcomes. The final subset of features will be used for model training and evaluation in later stages of the project.
 
 #### Modeling
-Several machine learning models will be explored during the modeling phase. We will begin with logistic regression as a baseline due to its simplicity and interpretability, allowing us to understand which variables are critical to predicting severe cases. Next, we will implement more advanced models like Random Forest, which combines multiple decision trees for higher accuracy while providing insight into feature importance. For further refinement, Gradient Boosting Machines (such as XGBoost) will be used to improve accuracy by correcting errors iteratively. If necessary, we will explore deep learning models, though their complexity and reduced interpretability mean they will only be considered if they show significant performance gains.
+
+Several machine-learning models will be explored during the modeling phase. We will begin with logistic regression as a baseline due to its simplicity and interpretability, allowing us to understand which variables are critical to predicting severe cases. Next, we will implement more advanced models like Random Forest, which combines multiple decision trees for higher accuracy while providing insight into feature importance. For further refinement, Gradient Boosting Machines (such as XGBoost) will be used to improve accuracy by correcting errors iteratively. If necessary, we will explore deep learning models, though their complexity and reduced interpretability mean they will only be considered if they show significant performance gains.
 
 #### Evaluation Metrics
-To evaluate model performance, we will use a set of carefully chosen metrics. We will use ROC-AUC, Cohen's Kappa, Sensitivity (or True Positive Rate) and F2 scores to evaluate the models. In cases where there are clear optimal model, we will priorize Sensitivity scores.
 
-Robustness will be assured through the utilization of bias-corrected 10-fold cross-validation to assure these scores accurately represent the behavior of the model in real world cases. 
+To evaluate model performance, we will use a set of carefully chosen metrics. We will use ROC-AUC, Cohen's Kappa, Sensitivity (or True Positive Rate), and F2 scores to evaluate the models. Where there are clear optimal models, we will prioritize Sensitivity scores.
 
+Robustness will be assured through the utilization of bias-corrected 10-fold cross-validation to ensure these scores accurately represent the behavior of the model in real-world cases.
 ## 4. Work Plan & Detailed Task Breakdown
 
 - **Task Breakdown**:
