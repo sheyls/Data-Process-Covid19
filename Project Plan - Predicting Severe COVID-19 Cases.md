@@ -124,7 +124,40 @@ These analyses provide a better understanding of the behavior of the data and a 
 
 ![Gantt Chart](images/gantt_chart.png)
 
+**Milestones:**
+- **End of Week 1:** Obtention of the data completed and well documented.
+- **End of Week 2:** Initial data and context understanding completed.
+- **End of Week 3:** Data preprocessed completed.
+- **End of Week 5:** Exploratory analysis completed.
+- **End of Week 8:** Model developed, best model selected and training completed.
+- **End of Week 11:** Model evaluated and validated with clinical input.
+- **End of Week 13:** Model integrated into the clinical systems.
+- **End of Week 14:** Final report and presentation prepared.
+
 ### Budget
+
+**Human Resources**
+- **2 Data Scientist:** 2 * (14 weeks * 2.500/week) = 2 * (35.000) = 70.000
+- **1 Data Engineer:** 14 weeks * 2.500/week = 35.000
+- **1 Software Engineer:** 4 weeks * 2.500/week = 10.000
+- **2 Clinical Consultants:** 2 * (6 weeks * 3.000/week) = 2 * (18.000) = 36.000
+- **1 Project Manager:** 14 weeks * 3.000/week = 42.000
+
+  **Total Human Resources:** 193.000
+
+**Computational Resources**
+- **Servers and Cloud Computing:** 15.000
+- **Software Licenses:** 5.000
+
+  **Total Computational Resources:** 20.000
+
+**Other**
+-	**Staff Training:** 10.000
+-	**Meetings and Workshops:** 3.000
+
+  **Total Others:** 13.000
+
+**Total Estimated Budget:** 226.000
 
 ### 5. Risk Analysis
 
