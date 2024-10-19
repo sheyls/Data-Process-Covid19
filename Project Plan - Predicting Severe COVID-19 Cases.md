@@ -31,6 +31,13 @@
   - **Risk Assessment and Mitigation**: [Identify risks and strategies to mitigate them, e.g., data privacy, model bias.]
   - **Final Reporting and Presentation**: [Prepare a comprehensive report and presentation for stakeholders.]
 
+- **Work Packages**: [Organize tasks into work packages reflecting different phases of the project, from data understanding to model deployment.]
+
+- **Gantt Chart**: [Provide a Gantt chart that visually represents the timeline, highlighting key milestones and deadlines.]
+
+- **Budget**: [Estimate the budget for the project, including costs such as computational resources, human resources.]
+
+
 ### Task Breakdown
 
 #### 1.	Data Acquisition
@@ -38,12 +45,14 @@
 -	Collect data from hospitals, medical centers, laboratories, Electronic Health Reports (EHR) in order to create a unified dataset.
 -	Organize and catalog the information collected identifying data types, their sources, the variables and the amount of data available to enable a more efficient management.
 -	Evaluate the quality of the information collected by checking for incomplete records or errors in the data ensuring data integration and consistency. This is crucial to ensure that they are suitable for use in data science analysis.
+
 These three steps ensure that data are accessible, well documented, and able to provide valuable results.
 
 #### 2.	Data and Context Understanding
 
 -	Implement an initial exploratory analysis (summary statistics and basic visualizations) to get a preliminary view of the data, understanding the distribution and identifying any suspicious patterns or outliers in the data.
 -	Collaborate with healthcare professionals to interpret variables and their relevance to severe Covid-19 outcomes in diabetic patients. This ensures that the variables are correctly understood, and that the analysis is aligned with clinical reality.
+
 These steps are fundamental to starting a robust data science analysis applied to healthcare to ensure that the analysis has a meaningful impact on decision making about severe Covid-19 outcomes in diabetic patients.
 
 #### 3.	Data Preprocessing
@@ -59,6 +68,7 @@ These steps are fundamental to starting a robust data science analysis applied t
 -	Perform a univariate analysis in order to understand each variable individually, allowing to detect how each variable is distributed and possible anomalies in it.
 -	Perform a bivariate analysis to determine the relationship between two variables, usually between a predictor variable and the target variable, this helps to understand how an individual characteristic influences or relates to the outcome.
 -	Perform a multivariate analysis to identify complex relations between several variables. This is key for problems where variables interact with each other in non-trivial ways and allows the identification of important patterns or subgroups.
+
 These analyses provide a better understanding of the behavior of the data and a better perspective for the choice of algorithms to be used in the implementation.
 
 #### 5.	Model Development and Training
@@ -89,21 +99,25 @@ These analyses provide a better understanding of the behavior of the data and a 
 -	**(Package 1):** Data acquisition and understanding
 •	Data acquisition
 •	Data and context understanding
+
 *Weeks 1-2*
 
 -	(**Package 2):** Data analysis
 •	Data preprocessing
 •	EDA
+
 *Weeks 3-5*
 
 -	**(Package 3):** Model implementation and evaluation
 •	Data development and training
 •	Model evaluation and validation
 •	Model integration
+
 *Weeks 6-13*
 
 -	**(Package 4):** Reporting
 •	Final reporting and presentation
+
 *Week 14*
 
 ### Gantt Chart
@@ -111,12 +125,6 @@ These analyses provide a better understanding of the behavior of the data and a 
 ![Gantt Chart](images/gantt_chart.png)
 
 ### Budget
-
-- **Work Packages**: [Organize tasks into work packages reflecting different phases of the project, from data understanding to model deployment.]
-
-- **Gantt Chart**: [Provide a Gantt chart that visually represents the timeline, highlighting key milestones and deadlines.]
-
-- **Budget**: [Estimate the budget for the project, including costs such as computational resources, human resources.]
 
 ### 5. Risk Analysis
 
