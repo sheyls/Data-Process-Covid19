@@ -100,25 +100,25 @@ These analyses provide a better understanding of the behavior of the data and a 
     - Data acquisition
     - Data and context understanding
 
-*Weeks 1-2*
+    *Weeks 1-2*
 
 -	(**Package 2):** Data analysis
     - Data preprocessing
     - EDA
 
-*Weeks 3-5*
+    *Weeks 3-5*
 
 -	**(Package 3):** Model implementation and evaluation
     - Data development and training
     - Model evaluation and validation
     - Model integration
 
-*Weeks 6-13*
+    *Weeks 6-13*
 
 -	**(Package 4):** Reporting
     - Final reporting and presentation
 
-*Week 14*
+    *Week 14*
 
 ### Gantt Chart
 
