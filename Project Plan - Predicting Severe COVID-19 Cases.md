@@ -155,7 +155,7 @@ These analyses provide a better understanding of the behavior of the data and a 
 -	**Staff Training:** 10.000
 -	**Meetings and Workshops:** 3.000
 
-  **Total Others:** 13.000
+    **Total Others:** 13.000
 
 **Total Estimated Budget:** 226.000
 
