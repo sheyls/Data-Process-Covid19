@@ -1,7 +1,9 @@
 
-### **1. Introduction**
+# Predicting Severe COVID-19 Cases in Diabetic Patients Aged 40-60
 
-#### **Context of the Project**
+## **1. Introduction**
+
+### **Context of the Project**
 
 The COVID-19 pandemic continues to challenge healthcare systems worldwide, with diabetic patients emerging as one of the most vulnerable groups. Due to compromised immune systems and other underlying conditions, individuals with diabetes are at a significantly higher risk of severe complications, prolonged hospitalization, and mortality when infected with COVID-19.
 
@@ -35,7 +37,7 @@ Diabetic patients are disproportionately affected by COVID-19, facing a combinat
     - **Intensive Care Needs:** Diabetic patients are more likely to require mechanical ventilation and extended ICU stays.
     - **Prolonged Hospitalization:** Complications lead to longer hospital stays, further straining healthcare capacity.
 
-#### **Stakeholders**
+### **Stakeholders**
 
 - **Hospitals and Healthcare Providers:** Predicting severe COVID-19 outcomes in diabetic patients enables healthcare providers to prioritize care, reduce ICU strain, and improve patient survival rates.
   
@@ -221,7 +223,7 @@ To ensure robustness, we will use **bias-corrected 10-fold cross-validation**, w
 
 ## **4. Work Plan & Detailed Task Breakdown**
 
-![](images/plan-dp.png)
+![](images/plan.png)
 
 ### **Task Breakdown**
 
@@ -397,12 +399,6 @@ If 2 additional weeks are required, the alternative 2 will be followed and all t
 - **Standard Plan (14 weeks)**: $159,000
 - **Alternative Plan (with 1 additional week)**: $167,000
 - **Alternative Plan (with 2 additional weeks)**: $175,000
-
-## **5. Análisis de Riesgos**
-
-  
-
-En la implementación de este proyecto es crucial identificar y mitigar riesgos que podrían comprometer su éxito. A pesar de los esfuerzos para reducir los riesgos, algunos son inevitables. Se presentan los riesgos más relevantes y sus respectivas estrategias de mitigación:
 
   
 ## **5. Risk Analysis**
