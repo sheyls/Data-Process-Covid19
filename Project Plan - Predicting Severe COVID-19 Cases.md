@@ -318,38 +318,40 @@ To ensure robustness, we will use **bias-corrected 10-fold cross-validation**, w
 #### **Package 2: Data Analysis**
 
 - Tasks: Data preprocessing, exploratory data analysis (EDA).
-- **Duration**: 3 weeks (with standard plan).
-- **Alternative Plan**: If additional data cleaning or feature engineering is needed due to incomplete data or unexpected quality issues, extend by **1 week**.
+- **Duration**: 3 weeks.
 
 #### **Package 3: Model Development and Evaluation**
 
 - Tasks: Model selection, training, hyperparameter tuning, validation, and integration.
-- **Duration**:
-    - **Standard Plan**: 8 weeks.
-    - **Alternative Plan**: Extend by **1 week** for additional testing or adjustments after clinical review.
+- **Duration**: 4 weeks.
 
 #### **Package 4: Reporting and Integration**
 
 - Tasks: Final reporting, application development, and system integration.
-- **Duration**: 1 week (standard).
-- **Alternative Plan**: Additional 1 week for feedback incorporation if major adjustments are required post-presentation.
+- **Duration**: 1 week.
 
 ### **Gantt Chart**
 
 The Gantt chart would reflect the alternative paths, highlighting possible extensions in weeks depending on the outcomes of data acquisition and understanding phases. Milestones and key deadlines will be adjusted accordingly.
 
-AGREGAR CHART ACTUALIZADO
+![](images/gantt_chart.png)
 
 ### **Milestones**
 
 - **End of Week 1**: Data collection completed (standard plan).
 - **End of Week 2-4**: Data formatting completed (if needed) and initial context understanding completed (if additional meetings are required).
-- **End of Week 3-6**: Data preprocessing completed.
-- **End of Week 5-8**: Exploratory analysis completed.
-- **End of Week 8-12**: Model development, training, and validation completed.
-- **End of Week 11-14**: Model integrated into clinical systems.
-- **End of Week 14-16**: Final report and presentation prepared.
+- **End of Week 3-5**: Data preprocessing completed.
+- **End of Week 5-7**: Exploratory analysis completed.
+- **End of Week 7-9**: Model development and training completed.
+- **End of Week 8-10**: Model evaluation and validation completed.
+- **End of Week 9-11**: Model integrated into clinical systems.
+- **End of Week 10-12**: Final report and presentation prepared.
 
+The project will be completed at the end of week 10 if the standard plan is followed.
+
+If 1 additional week is required, the alternative 1 will be followed and all the following activities will move 1 week. With this alternative, the project will be completed at the end of week 11
+
+If 2 additional weeks are required, the alternative 2 will be followed and all the following activities will move 2 weeks. With this alternative, the project will be completed at the end of week 12
 
 ### **Budget**
 
@@ -357,9 +359,9 @@ AGREGAR CHART ACTUALIZADO
 
 - **2 Data Scientists**:
     
-    - **Standard Plan (14 weeks)**: 2 * (14 weeks * $2,500/week) = $70,000
-    - **Alternative Plan (with 1 additional week)**: 2 * (15 weeks * $2,500/week) = $75,000
-    - **Alternative Plan (with 2 additional weeks)**: 2 * (16 weeks * $2,500/week) = $80,000
+    - **Standard Plan (10 weeks)**: 2 * (10 weeks * $2,500/week) = $50,000
+    - **Alternative Plan (with 1 additional week)**: 2 * (11 weeks * $2,500/week) = $55,000
+    - **Alternative Plan (with 2 additional weeks)**: 2 * (12 weeks * $2,500/week) = $60,000
 - **1 Software Engineer**:
     
     - **Standard Plan (4 weeks)**: 4 weeks * $2,500/week = $10,000
@@ -368,15 +370,15 @@ AGREGAR CHART ACTUALIZADO
     - **Standard Plan (6 weeks)**: 2 * (6 weeks * $3,000/week) = $36,000
 - **1 Project Manager**:
     
-    - **Standard Plan (14 weeks)**: 14 weeks * $3,000/week = $42,000
-    - **Alternative Plan (with 1 additional week)**: 15 weeks * $3,000/week = $45,000
-    - **Alternative Plan (with 2 additional weeks)**: 16 weeks * $3,000/week = $48,000
+    - **Standard Plan (10 weeks)**: 10 weeks * $3,000/week = $30,000
+    - **Alternative Plan (with 1 additional week)**: 11 weeks * $3,000/week = $33,000
+    - **Alternative Plan (with 2 additional weeks)**: 12 weeks * $3,000/week = $36,000
 
 #### **Human Resources Total Costs**
 
-- **Standard Plan (14 weeks)**: $158,000
-- **Alternative Plan (with 1 additional week)**: $165,000
-- **Alternative Plan (with 2 additional weeks)**: $173,000
+- **Standard Plan (10 weeks)**: $126,000
+- **Alternative Plan (with 1 additional week)**: $134,000
+- **Alternative Plan (with 2 additional weeks)**: $142,000
 
 #### **Computational Resources**
 
@@ -392,9 +394,9 @@ AGREGAR CHART ACTUALIZADO
 
 ### **Total Estimated Budget**
 
-- **Standard Plan (14 weeks)**: $191,500
-- **Alternative Plan (with 1 additional week)**: $200,000
-- **Alternative Plan (with 2 additional weeks)**: $208,500
+- **Standard Plan (14 weeks)**: $159,000
+- **Alternative Plan (with 1 additional week)**: $167,000
+- **Alternative Plan (with 2 additional weeks)**: $175,000
 
 ## **5. Análisis de Riesgos**
 
