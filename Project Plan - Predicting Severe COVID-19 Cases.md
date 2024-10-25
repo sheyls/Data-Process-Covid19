@@ -9,11 +9,11 @@ The COVID-19 pandemic continues to challenge healthcare systems worldwide, with 
 
 This project specifically focuses on diabetic patients aged 40-60—a key demographic due to their dual vulnerability and societal role. This age group represents a substantial portion of the working population, meaning that mitigating their risk not only saves lives but also preserves healthcare resources and supports societal productivity.
 
-#### **Problem Statement**
+### **Problem Statement**
 
-The primary goal of this project is to develop a machine learning model that can predict which diabetic inpatients are most at risk of developing severe COVID-19 complications. By identifying these high-risk patients early, hospitals can implement timely interventions, reduce ICU admissions, and optimize resource allocation. This approach not only enhances patient outcomes but also helps alleviate the financial burden on healthcare systems by reducing unnecessary treatments and extended hospital stays.
+The primary goal of this project is to develop a machine-learning model that can predict which diabetic inpatients are most at risk of developing severe COVID-19 complications. By identifying these high-risk patients early, hospitals can implement timely interventions, reduce ICU admissions, and optimize resource allocation. This approach not only enhances patient outcomes but also helps alleviate the financial burden on healthcare systems by reducing unnecessary treatments and extended hospital stays.
 
-#### **Why Focus on Diabetic Patients?**
+### **Why Focus on Diabetic Patients?**
 
 Diabetic patients are disproportionately affected by COVID-19, facing a combination of factors that make them more susceptible to severe outcomes:
 
@@ -30,7 +30,7 @@ Diabetic patients are disproportionately affected by COVID-19, facing a combinat
     - **Cardiovascular Disease and Obesity:** These conditions, often present in diabetic patients, further increase the likelihood of severe illness.
 4. **Challenges in Blood Sugar Management:**
     
-    - **Metabolic Instability:** COVID-19 often disrupts glycemic control, complicating treatment for both diabetes and the viral infection.
+    - **Metabolic Instability:** COVID-19 often disrupts glycemic control, complicating treatment for diabetes and viral infection.
     - **Drug Interactions:** Antidiabetic medications may interact with COVID-19 treatments, necessitating more complex care.
 5. **Increased Demand for Healthcare Resources:**
     
@@ -85,7 +85,7 @@ Diabetic patients are disproportionately affected by COVID-19, facing a combinat
     
 - **ROI Calculation:**
     
-    ROI=(1,350,000−169,000)169,000×100≈699%
+    ROI=(1,350,000−169,000)169,000×100≈699%ROI = \frac{(1,350,000 - 169,000)}{169,000} \times 100 ≈ 699\%ROI=169,000(1,350,000−169,000)​×100≈699%
 
 The high ROI (approximately **699%**) demonstrates the financial viability of the project. By preventing severe COVID-19 cases in diabetic patients, the benefits vastly outweigh the costs, making this a highly attractive solution for hospitals seeking to reduce ICU strain and enhance patient outcomes.
 
@@ -139,6 +139,8 @@ In order to facilitate seamless integration into our data pipeline, the data wil
 
 If the data is not readily available in these formats, we propose adding a one-week extension to transform the datasets into compatible formats.
 
+This data as a whole should be accessible by our data science team in a controlled and secure environment. We expect a **single point of access** to minimize delays. The preferred options are cloud-based folders or a shared database. 
+
 #### **Metadata Requirements**
 
 To ensure a comprehensive understanding of the data, we require detailed documentation to accompany all datasets, which should include:
@@ -154,6 +156,7 @@ To ensure a comprehensive understanding of the data, we require detailed documen
 
 In the event that these documents are not available or incomplete, we propose adding three **consultative meetings** with medical experts and our data scientists. During these meetings, we will gather the necessary information to create the metadata and documentation ourselves. This collaborative effort will ensure the data is fully understood and properly prepared for use in the predictive model.
 
+
 #### **Ethical Concerns and Data Privacy**
 
 Given the sensitive nature of the data, it is critical to ensure patient anonymity through data anonymization. Only essential information will be collected to prevent re-identification. Strict access controls and encryption will be used to safeguard patient data, and these measures will be reviewed in further detail in the Risk Analysis section.
@@ -166,18 +169,33 @@ To maintain high model accuracy, we must establish criteria for data quality and
     
 - **Consistency**: Data should be consistent across all datasets (e.g., identifiers for patients and hospitals should remain the same). Measurement units for clinical variables must be standardized to avoid misinterpretation.
     
-- **Outlier Detection**: Outliers in clinical data (e.g., extremely high or low blood sugar levels) will be carefully examined to ensure they represent actual cases rather than data entry errors.
-    
+### **Data Assurances for Replicability**
+To ensure that the model's results will be replicable in practice, we will require that the data used be representative of the predicted target population.
+
+### Representativeness of Data
+
+- Data must represent the target population of diabetic patients **aged 40 to 60** in the **territory of Spain**.
+- Feature distributions should closely match those of the target population, ensuring balanced class representation.
+
+### Relevance of Time 
+Circumstances change quickly in the field of infectious diseases. As such, the data must have been collected **within the past 18 months**. 
+
+Should the data prove insufficient, the sampling will be widened to 24 months.
+
+### Independence of Data
+
+- Data should be independent and free of duplicates.
+- Avoid sampling related individuals, such as family members, to prevent correlation.
 
 ### **Approach**
 
-In this section, we will outline the machine learning techniques and methodologies that will be applied to predict severe COVID-19 outcomes.
+In this section, we will outline the machine-learning techniques and methodologies that will be applied to predict severe COVID-19 outcomes.
 
 #### **Data Pre-processing**
 
 To ensure the data is ready for modeling, we will apply a series of pre-processing steps:
 
-- **Handling Missing Data**: Basic patterns of missing data will be handled using imputation techniques (e.g., mean/mode imputation for demographic data). For more complex patterns, advanced imputation methods such as **K-Nearest Neighbors (KNN)** will be applied.
+- **Handling Missing Data**: Basic patterns of missing data will be handled using imputation techniques (e.g., mean/mode imputation for demographic data). For more complex patterns, advanced imputation methods such as **K-Nearest Neighbors (KNN)** and **Multiple Imputation Chained Equations (MICE)** will be applied.
     
 - **Standardization and Normalization**: Continuous variables, such as vital signs and lab results, will be normalized or standardized to ensure uniformity across the dataset.
     
@@ -186,13 +204,14 @@ To ensure the data is ready for modeling, we will apply a series of pre-processi
 - **Class Imbalance**: As we expect a class imbalance (fewer severe cases than non-severe), we will employ methods such as **Synthetic Minority Over-sampling Technique (SMOTE)** to ensure balanced training datasets.
     
 
+
 #### **Feature Selection**
 
 Selecting the most relevant features is crucial for creating an efficient and interpretable model. We will use the following techniques:
 
 - **Recursive Feature Elimination (RFE)**: This method will rank the features based on their importance and remove less relevant features. This helps in reducing overfitting and improving model performance.
     
-- **Wrapper Methods**: We will use a small **Multi-Layer Perceptron (MLP)** model in combination with an annealing-based search strategy to explore the feature space. This technique balances exploration of new feature combinations with exploitation of high-performing subsets, ensuring we select the most relevant variables.
+- **Wrapper Methods**: We will use a small **Multi-Layer Perceptron (MLP)** model in combination with an annealing-based search strategy to explore the feature space. This technique balances the exploration of new feature combinations with the exploitation of high-performing subsets, ensuring we select the most relevant variables.
     
 
 #### **Modeling**
@@ -304,7 +323,7 @@ To ensure robustness, we will use **bias-corrected 10-fold cross-validation**, w
 #### **8. Final Reporting and Presentation**
 
 - **Documentation**:
-    - Prepare a comprehensive report detailing the methodology, model performance, and findings. Also create a user manual for the application.
+    - Prepare a comprehensive report detailing the methodology, model performance, and findings. Also, create a user manual for the application.
 - **Presentation**:
     - Present the final results to hospital stakeholders, collecting feedback for further model improvements.
 
@@ -320,21 +339,25 @@ To ensure robustness, we will use **bias-corrected 10-fold cross-validation**, w
 #### **Package 2: Data Analysis**
 
 - Tasks: Data preprocessing, exploratory data analysis (EDA).
-- **Duration**: 3 weeks.
+- **Duration**: 3 weeks (with standard plan).
+- **Alternative Plan**: If additional data cleaning or feature engineering is needed due to incomplete data or unexpected quality issues, extend by **1 week**.
 
 #### **Package 3: Model Development and Evaluation**
 
 - Tasks: Model selection, training, hyperparameter tuning, validation, and integration.
-- **Duration**: 4 weeks.
+- **Duration**:
+    - **Standard Plan**: 8 weeks.
+    - **Alternative Plan**: Extend by **1 week** for additional testing or adjustments after clinical review.
 
 #### **Package 4: Reporting and Integration**
 
 - Tasks: Final reporting, application development, and system integration.
-- **Duration**: 1 week.
+- **Duration**: 1 week (standard).
+- **Alternative Plan**: Additional 1 week for feedback incorporation if major adjustments are required post-presentation.
 
 ### **Gantt Chart**
 
-The Gantt chart would reflect the alternative paths, highlighting possible extensions in weeks depending on the outcomes of data acquisition and understanding phases. Milestones and key deadlines will be adjusted accordingly.
+The Gantt chart would reflect the alternative paths, highlighting possible extensions in weeks depending on the outcomes of the data acquisition and understanding phases. Milestones and key deadlines will be adjusted accordingly.
 
 ![](images/gantt_chart.png)
 
@@ -342,18 +365,12 @@ The Gantt chart would reflect the alternative paths, highlighting possible exten
 
 - **End of Week 1**: Data collection completed (standard plan).
 - **End of Week 2-4**: Data formatting completed (if needed) and initial context understanding completed (if additional meetings are required).
-- **End of Week 3-5**: Data preprocessing completed.
-- **End of Week 5-7**: Exploratory analysis completed.
-- **End of Week 7-9**: Model development and training completed.
-- **End of Week 8-10**: Model evaluation and validation completed.
-- **End of Week 9-11**: Model integrated into clinical systems.
-- **End of Week 10-12**: Final report and presentation prepared.
+- **End of Week 3-6**: Data preprocessing completed.
+- **End of Week 5-8**: Exploratory analysis completed.
+- **End of Week 8-12**: Model development, training, and validation completed.
+- **End of Week 11-14**: Model integrated into clinical systems.
+- **End of Week 14-16**: Final report and presentation prepared.
 
-The project will be completed at the end of week 10 if the standard plan is followed.
-
-If 1 additional week is required, the alternative 1 will be followed and all the following activities will move 1 week. With this alternative, the project will be completed at the end of week 11
-
-If 2 additional weeks are required, the alternative 2 will be followed and all the following activities will move 2 weeks. With this alternative, the project will be completed at the end of week 12
 
 ### **Budget**
 
@@ -361,9 +378,9 @@ If 2 additional weeks are required, the alternative 2 will be followed and all t
 
 - **2 Data Scientists**:
     
-    - **Standard Plan (10 weeks)**: 2 * (10 weeks * $2,500/week) = $50,000
-    - **Alternative Plan (with 1 additional week)**: 2 * (11 weeks * $2,500/week) = $55,000
-    - **Alternative Plan (with 2 additional weeks)**: 2 * (12 weeks * $2,500/week) = $60,000
+    - **Standard Plan (14 weeks)**: 2 * (14 weeks * $2,500/week) = $70,000
+    - **Alternative Plan (with 1 additional week)**: 2 * (15 weeks * $2,500/week) = $75,000
+    - **Alternative Plan (with 2 additional weeks)**: 2 * (16 weeks * $2,500/week) = $80,000
 - **1 Software Engineer**:
     
     - **Standard Plan (4 weeks)**: 4 weeks * $2,500/week = $10,000
@@ -372,15 +389,15 @@ If 2 additional weeks are required, the alternative 2 will be followed and all t
     - **Standard Plan (6 weeks)**: 2 * (6 weeks * $3,000/week) = $36,000
 - **1 Project Manager**:
     
-    - **Standard Plan (10 weeks)**: 10 weeks * $3,000/week = $30,000
-    - **Alternative Plan (with 1 additional week)**: 11 weeks * $3,000/week = $33,000
-    - **Alternative Plan (with 2 additional weeks)**: 12 weeks * $3,000/week = $36,000
+    - **Standard Plan (14 weeks)**: 14 weeks * $3,000/week = $42,000
+    - **Alternative Plan (with 1 additional week)**: 15 weeks * $3,000/week = $45,000
+    - **Alternative Plan (with 2 additional weeks)**: 16 weeks * $3,000/week = $48,000
 
 #### **Human Resources Total Costs**
 
-- **Standard Plan (10 weeks)**: $126,000
-- **Alternative Plan (with 1 additional week)**: $134,000
-- **Alternative Plan (with 2 additional weeks)**: $142,000
+- **Standard Plan (14 weeks)**: $158,000
+- **Alternative Plan (with 1 additional week)**: $165,000
+- **Alternative Plan (with 2 additional weeks)**: $173,000
 
 #### **Computational Resources**
 
@@ -396,9 +413,15 @@ If 2 additional weeks are required, the alternative 2 will be followed and all t
 
 ### **Total Estimated Budget**
 
-- **Standard Plan (14 weeks)**: $159,000
-- **Alternative Plan (with 1 additional week)**: $167,000
-- **Alternative Plan (with 2 additional weeks)**: $175,000
+- **Standard Plan (14 weeks)**: $191,500
+- **Alternative Plan (with 1 additional week)**: $200,000
+- **Alternative Plan (with 2 additional weeks)**: $208,500
+
+## **5. Análisis de Riesgos**
+
+  
+
+En la implementación de este proyecto es crucial identificar y mitigar riesgos que podrían comprometer su éxito. A pesar de los esfuerzos para reducir los riesgos, algunos son inevitables. Se presentan los riesgos más relevantes y sus respectivas estrategias de mitigación:
 
   
 ## **5. Risk Analysis**
@@ -433,7 +456,7 @@ In the implementation of this project, it is essential to identify and address p
 - **Mitigation**:
     
     - **Cross-Validation**: Advanced cross-validation techniques will be used to ensure the model generalizes well to unseen datasets.
-    - **Continuous Monitoring**: The model will be regularly updated with new data, and its performance will be monitored in real time to adjust for any deviations in predictions.
+    - **Continuous Monitoring**: The model will be regularly updated with new data, and its performance will be monitored in real-time to adjust for any deviations in predictions.
     - **Scalability**: The model architecture will be designed with scalability in mind, ensuring it can handle larger volumes of data and be deployed in multiple hospitals if required.
 - **Non-Mitigable Risks**:  
     Despite continuous updates, the model may not fully capture the clinical complexity or sudden shifts in disease patterns, such as the emergence of new COVID-19 variants. Predictive models inherently have limitations, and 100% accuracy cannot be guaranteed.
@@ -441,7 +464,7 @@ In the implementation of this project, it is essential to identify and address p
 ### **5.3 Ethical and Privacy Risks**
 
 - **Risk**:  
-    **Data Privacy and Regulatory Compliance**: Handling sensitive patient data introduces risks related to data privacy and ensuring compliance with regulations such as GDPR (General Data Protection Regulation). A failure to protect patient privacy could result in legal penalties and damage the hospital’s reputation.
+    **Data Privacy and Regulatory Compliance**: Handling sensitive patient data introduces risks related to data privacy and ensures compliance with regulations such as GDPR (General Data Protection Regulation). A failure to protect patient privacy could result in legal penalties and damage the hospital’s reputation.
     
 - **Analysis**:  
     This project involves processing highly sensitive data concerning diabetic patients and their health outcomes. Protecting patient privacy is paramount. Any breach could lead to severe legal consequences, undermine patient trust, and damage the hospital’s reputation.
@@ -465,7 +488,7 @@ In the implementation of this project, it is essential to identify and address p
 - **Mitigation**:
     
     - **Phased Implementation**: A phased rollout of the model will be employed to minimize disruptions, allowing adjustments to be made as the model is integrated into the hospital's existing infrastructure.
-    - **Comprehensive Training**: Detailed training programs will be provided to ensure that clinical staff understand the model, can interpret its predictions, and apply them in a meaningful way to patient care.
+    - **Comprehensive Training**: Detailed training programs will be provided to ensure that clinical staff understand the model, interpret its predictions, and apply them in a meaningful way to patient care.
     - **Long-Term Support**: Ongoing technical and operational support will be available post-implementation to address any challenges and ensure the model’s proper use.
 - **Non-Mitigable Risks**:  
     Resistance to change from medical staff may persist despite extensive training, and certain technological limitations in hospital infrastructure could present challenges to full integration.
@@ -488,7 +511,7 @@ By addressing these risks with targeted mitigation strategies, we aim to minimiz
 
 The project is technologically feasible given the available resources and technical infrastructure. Access to the necessary clinical, demographic, and hospital admission data is realistic, and the machine learning techniques proposed, such as Random Forest, XGBoost, and deep learning methods, are well-suited to creating robust predictive models.
 
-The hospital’s technological infrastructure should be capable of supporting the integration of the predictive model through APIs into its existing Electronic Health Record (EHR) systems. This integration will allow healthcare professionals to access predictions in real time, ensuring informed and timely decision-making.
+The hospital’s technological infrastructure should be capable of supporting the integration of the predictive model through APIs into its existing Electronic Health Record (EHR) systems. This integration will allow healthcare professionals to access predictions in real-time, ensuring informed and timely decision-making.
 
 Key technological factors supporting feasibility include:
 
