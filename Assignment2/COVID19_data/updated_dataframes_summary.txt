@@ -1,0 +1,155 @@
+DF1 - Describe:
+         patient_id  patient ID.1  country_of_residence           age           sex  fever_temperature  oxygen_saturation  history_of_fever         cough   sore_throat    runny_nose      wheezing  shortness_of_breath  lower_chest_wall_indrawing    chest_pain  conjunctivitis  lymphadenopathy      headache  loss_of_smell  loss_of_taste  fatigue_malaise      anorexia  altered_consciousness_confusion  muscle_aches    joint_pain  inability_to_walk  abdominal_pain     diarrhoea  vomiting_nausea     skin_rash      bleeding  other_symptoms  chronic_cardiac_disease  hypertension  chronic_pulmonary_disease        asthma  chronic_kidney_disease       obesity  liver_disease      asplenia  chronic_neurological_disorder  malignant_neoplasm  chronic_hematologic_disease      AIDS_HIV  diabetes_mellitus_type_1  diabetes_mellitus_type_2  rheumatologic_disorder      dementia  tuberculosis      smoking   other_risks    PCR_result
+count  1.471200e+04  1.471200e+04          14712.000000  14712.000000  14712.000000       14244.000000       14708.000000      14712.000000  14712.000000  14712.000000  14712.000000  14712.000000         14712.000000                14712.000000  14712.000000    14712.000000     14712.000000  14712.000000   14712.000000   14712.000000     14712.000000  14712.000000                     14712.000000  14712.000000  14712.000000       14712.000000    14712.000000  14712.000000     14712.000000  14712.000000  14712.000000    14712.000000             14712.000000  14712.000000               14712.000000  14712.000000            14712.000000  14712.000000   14712.000000  14712.000000                   14712.000000        14712.000000                 14712.000000  14712.000000              14712.000000              14712.000000            14712.000000  14712.000000  14712.000000  14712.00000  14712.000000  13536.000000
+mean   4.954103e+07  4.956224e+07             92.802406     44.969413      0.562534          37.343555          93.667596          0.253331      0.245514      0.222471      0.204119      0.015701             0.221656                    0.001291      0.013934        0.001223         0.002651      0.192836       0.002039       0.001291         0.211256      0.002039                         0.001767      0.003059      0.005778           0.001020        0.016245      0.200245         0.200585      0.001699      0.001495        0.001427                 0.007885      0.195419                   0.002923      0.193108                0.001088     -0.000680       0.003467     -0.001359                       0.001359            0.004554                     0.001563      0.001223                  0.001359                  0.002107                0.001699      0.001359      0.001767      0.03752      0.001359      0.918587
+std    2.890097e+07  2.889822e+07             12.113652     19.618266      0.496091           0.790140           8.046188          0.434933      0.430406      0.415920      0.403070      0.124322             0.415375                    0.035915      0.117222        0.034958         0.051420      0.394539       0.045112       0.035915         0.408214      0.045112                         0.042003      0.055223      0.075793           0.031916        0.126422      0.400197         0.400451      0.041189      0.038643        0.037755                 0.088448      0.396536                   0.053986      0.394750                0.062781      0.091064       0.076824      0.087244                       0.046620            0.067333                     0.048752      0.045142                  0.050806                  0.054024                0.050122      0.046620      0.042003      0.19004      0.036847      0.273478
+min    5.680000e+02  5.680000e+02              0.000000     -1.000000      0.000000          35.000000          -1.000000          0.000000      0.000000      0.000000      0.000000      0.000000             0.000000                    0.000000      0.000000        0.000000         0.000000      0.000000       0.000000       0.000000         0.000000      0.000000                         0.000000      0.000000      0.000000           0.000000        0.000000      0.000000         0.000000      0.000000      0.000000        0.000000                 0.000000      0.000000                   0.000000      0.000000               -2.000000     -2.000000      -2.000000     -2.000000                      -2.000000            0.000000                    -2.000000     -2.000000                 -2.000000                 -2.000000               -2.000000     -2.000000      0.000000      0.00000      0.000000      0.000000
+25%    2.438182e+07  2.439289e+07             95.000000     31.000000      0.000000          36.700000          94.000000          0.000000      0.000000      0.000000      0.000000      0.000000             0.000000                    0.000000      0.000000        0.000000         0.000000      0.000000       0.000000       0.000000         0.000000      0.000000                         0.000000      0.000000      0.000000           0.000000        0.000000      0.000000         0.000000      0.000000      0.000000        0.000000                 0.000000      0.000000                   0.000000      0.000000                0.000000      0.000000       0.000000      0.000000                       0.000000            0.000000                     0.000000      0.000000                  0.000000                  0.000000                0.000000      0.000000      0.000000      0.00000      0.000000      1.000000
+50%    4.945251e+07  4.949977e+07             95.000000     43.000000      1.000000          37.200000          95.000000          0.000000      0.000000      0.000000      0.000000      0.000000             0.000000                    0.000000      0.000000        0.000000         0.000000      0.000000       0.000000       0.000000         0.000000      0.000000                         0.000000      0.000000      0.000000           0.000000        0.000000      0.000000         0.000000      0.000000      0.000000        0.000000                 0.000000      0.000000                   0.000000      0.000000                0.000000      0.000000       0.000000      0.000000                       0.000000            0.000000                     0.000000      0.000000                  0.000000                  0.000000                0.000000      0.000000      0.000000      0.00000      0.000000      1.000000
+75%    7.415643e+07  7.417107e+07             95.000000     60.000000      1.000000          38.000000          96.000000          1.000000      0.000000      0.000000      0.000000      0.000000             0.000000                    0.000000      0.000000        0.000000         0.000000      0.000000       0.000000       0.000000         0.000000      0.000000                         0.000000      0.000000      0.000000           0.000000        0.000000      0.000000         0.000000      0.000000      0.000000        0.000000                 0.000000      0.000000                   0.000000      0.000000                0.000000      0.000000       0.000000      0.000000                       0.000000            0.000000                     0.000000      0.000000                  0.000000                  0.000000                0.000000      0.000000      0.000000      0.00000      0.000000      1.000000
+max    9.998049e+07  9.998049e+07            109.000000    100.000000      1.000000          39.800000         100.000000          1.000000      1.000000      1.000000      1.000000      1.000000             1.000000                    1.000000      1.000000        1.000000         1.000000      1.000000       1.000000       1.000000         1.000000      1.000000                         1.000000      1.000000      1.000000           1.000000        1.000000      1.000000         1.000000      1.000000      1.000000        1.000000                 1.000000      1.000000                   1.000000      1.000000                1.000000      1.000000       1.000000      1.000000                       1.000000            1.000000                     1.000000      1.000000                  1.000000                  1.000000                1.000000      1.000000      1.000000      1.00000      1.000000      1.000000
+
+DF1 - Info:
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 14712 entries, 0 to 14711
+Data columns (total 54 columns):
+ #   Column                           Non-Null Count  Dtype         
+---  ------                           --------------  -----         
+ 0   patient_id                       14712 non-null  int64         
+ 1   patient ID.1                     14712 non-null  int64         
+ 2   country_of_residence             14712 non-null  int64         
+ 3   age                              14712 non-null  int64         
+ 4   sex                              14712 non-null  int64         
+ 5   date_of_first_symptoms           14712 non-null  datetime64[ns]
+ 6   admission_date                   14712 non-null  datetime64[ns]
+ 7   fever_temperature                14244 non-null  float64       
+ 8   oxygen_saturation                14708 non-null  float64       
+ 9   history_of_fever                 14712 non-null  int64         
+ 10  cough                            14712 non-null  int64         
+ 11  sore_throat                      14712 non-null  int64         
+ 12  runny_nose                       14712 non-null  int64         
+ 13  wheezing                         14712 non-null  int64         
+ 14  shortness_of_breath              14712 non-null  int64         
+ 15  lower_chest_wall_indrawing       14712 non-null  int64         
+ 16  chest_pain                       14712 non-null  int64         
+ 17  conjunctivitis                   14712 non-null  int64         
+ 18  lymphadenopathy                  14712 non-null  int64         
+ 19  headache                         14712 non-null  int64         
+ 20  loss_of_smell                    14712 non-null  int64         
+ 21  loss_of_taste                    14712 non-null  int64         
+ 22  fatigue_malaise                  14712 non-null  int64         
+ 23  anorexia                         14712 non-null  int64         
+ 24  altered_consciousness_confusion  14712 non-null  int64         
+ 25  muscle_aches                     14712 non-null  int64         
+ 26  joint_pain                       14712 non-null  int64         
+ 27  inability_to_walk                14712 non-null  int64         
+ 28  abdominal_pain                   14712 non-null  int64         
+ 29  diarrhoea                        14712 non-null  int64         
+ 30  vomiting_nausea                  14712 non-null  int64         
+ 31  skin_rash                        14712 non-null  int64         
+ 32  bleeding                         14712 non-null  int64         
+ 33  other_symptoms                   14712 non-null  int64         
+ 34  chronic_cardiac_disease          14712 non-null  int64         
+ 35  hypertension                     14712 non-null  int64         
+ 36  chronic_pulmonary_disease        14712 non-null  int64         
+ 37  asthma                           14712 non-null  int64         
+ 38  chronic_kidney_disease           14712 non-null  int64         
+ 39  obesity                          14712 non-null  int64         
+ 40  liver_disease                    14712 non-null  int64         
+ 41  asplenia                         14712 non-null  int64         
+ 42  chronic_neurological_disorder    14712 non-null  int64         
+ 43  malignant_neoplasm               14712 non-null  int64         
+ 44  chronic_hematologic_disease      14712 non-null  int64         
+ 45  AIDS_HIV                         14712 non-null  int64         
+ 46  diabetes_mellitus_type_1         14712 non-null  int64         
+ 47  diabetes_mellitus_type_2         14712 non-null  int64         
+ 48  rheumatologic_disorder           14712 non-null  int64         
+ 49  dementia                         14712 non-null  int64         
+ 50  tuberculosis                     14712 non-null  int64         
+ 51  smoking                          14712 non-null  int64         
+ 52  other_risks                      14712 non-null  int64         
+ 53  PCR_result                       13536 non-null  float64       
+dtypes: datetime64[ns](2), float64(3), int64(49)
+memory usage: 6.1 MB
+
+
+DF2 - Describe:
+         patient_id  admission_id  country_of_residence         age           sex  fever_temperature  oxygen_saturation  history_of_fever         cough   sore_throat    runny_nose      wheezing  shortness_of_breath  lower_chest_wall_indrawing    chest_pain  conjunctivitis  lymphadenopathy      headache  loss_of_smell  loss_of_taste  fatigue_malaise      anorexia  altered_consciousness_confusion  muscle_aches    joint_pain  inability_to_walk  abdominal_pain     diarrhoea  vomiting_nausea     skin_rash      bleeding  other_symptoms  chronic_cardiac_disease  hypertension  chronic_pulmonary_disease        asthma  chronic_kidney_disease       obesity  liver_disease      asplenia  chronic_neurological_disorder  malignant_neoplasm  chronic_hematologic_disease      AIDS_HIV  diabetes_mellitus_type_1  diabetes_mellitus_type_2  rheumatologic_disorder      dementia  tuberculosis       smoking   other_risks    PCR_result
+count  1.273400e+04  12734.000000          12737.000000  12734.0000  12737.000000       11515.000000       12730.000000      12737.000000  12737.000000  12737.000000  12737.000000  12737.000000         12737.000000                12737.000000  12737.000000    12737.000000     12737.000000  12737.000000   12737.000000   12737.000000     12737.000000  12737.000000                     12737.000000  12737.000000  12737.000000       12737.000000    12737.000000  12737.000000     12737.000000  12737.000000  12737.000000    12737.000000             12737.000000  12737.000000               12737.000000  12737.000000            12737.000000  12737.000000   12737.000000  12737.000000                   12737.000000        12737.000000                 12737.000000  12737.000000              12737.000000              12737.000000            12737.000000  12737.000000  12737.000000  12737.000000  12737.000000  12703.000000
+mean   5.023513e+07     35.315690             93.222972     40.7842      0.601555          37.341685          93.576905          0.770825      0.345843      0.407788      0.095784      0.001806             0.026301                    0.001256      0.004240        0.000628         0.001649      0.172490       0.001884       0.001256         0.599042      0.001570                         0.001806      0.394677      0.009892           0.001335        0.021041      0.061317         0.018607      0.001099     -0.004083       -0.005025                 0.000785      0.059119                   0.001649      0.018215                0.001099      0.001021       0.001806      0.001256                       0.001021            0.001570                     0.001727      0.001492                  0.001649                  0.001178                0.001335      0.001413      0.001099      0.145953      0.000942      0.769739
+std    2.895331e+07     52.018145             11.492722     16.0065      0.491518           0.794713           7.991438          0.424778      0.476156      0.491922      0.296698      0.056709             0.164393                    0.051653      0.075069        0.045178         0.055312      0.378443       0.048497       0.041543         0.490592      0.045155                         0.047684      0.489282      0.101324           0.042475        0.145159      0.240901         0.136870      0.039612      0.119472        0.115424                 0.035435      0.236853                   0.046014      0.135482                0.039612      0.031933       0.042458      0.035422                       0.031933            0.039597                     0.041526      0.038595                  0.040573                  0.034298                0.036511      0.037568      0.033137      0.353073      0.030681      0.421016
+min    7.140000e+02      1.000000             -2.000000     -1.0000     -2.000000          34.800000          -1.000000         -2.000000     -2.000000     -2.000000     -2.000000     -2.000000            -2.000000                   -2.000000     -2.000000       -2.000000        -2.000000     -2.000000      -2.000000      -2.000000        -2.000000     -2.000000                        -2.000000     -2.000000     -2.000000          -2.000000       -2.000000     -2.000000        -2.000000     -2.000000     -2.000000       -2.000000                -2.000000     -2.000000                  -2.000000     -2.000000               -2.000000      0.000000       0.000000      0.000000                       0.000000            0.000000                     0.000000      0.000000                  0.000000                  0.000000                0.000000      0.000000      0.000000      0.000000      0.000000      0.000000
+25%    2.516352e+07      3.000000             95.000000     28.0000      0.000000          36.700000          94.000000          1.000000      0.000000      0.000000      0.000000      0.000000             0.000000                    0.000000      0.000000        0.000000         0.000000      0.000000       0.000000       0.000000         0.000000      0.000000                         0.000000      0.000000      0.000000           0.000000        0.000000      0.000000         0.000000      0.000000      0.000000        0.000000                 0.000000      0.000000                   0.000000      0.000000                0.000000      0.000000       0.000000      0.000000                       0.000000            0.000000                     0.000000      0.000000                  0.000000                  0.000000                0.000000      0.000000      0.000000      0.000000      0.000000      1.000000
+50%    5.064155e+07     15.000000             95.000000     38.0000      1.000000          37.200000          95.000000          1.000000      0.000000      0.000000      0.000000      0.000000             0.000000                    0.000000      0.000000        0.000000         0.000000      0.000000       0.000000       0.000000         1.000000      0.000000                         0.000000      0.000000      0.000000           0.000000        0.000000      0.000000         0.000000      0.000000      0.000000        0.000000                 0.000000      0.000000                   0.000000      0.000000                0.000000      0.000000       0.000000      0.000000                       0.000000            0.000000                     0.000000      0.000000                  0.000000                  0.000000                0.000000      0.000000      0.000000      0.000000      0.000000      1.000000
+75%    7.526546e+07     46.000000             95.000000     51.0000      1.000000          38.000000          96.000000          1.000000      1.000000      1.000000      0.000000      0.000000             0.000000                    0.000000      0.000000        0.000000         0.000000      0.000000       0.000000       0.000000         1.000000      0.000000                         0.000000      1.000000      0.000000           0.000000        0.000000      0.000000         0.000000      0.000000      0.000000        0.000000                 0.000000      0.000000                   0.000000      0.000000                0.000000      0.000000       0.000000      0.000000                       0.000000            0.000000                     0.000000      0.000000                  0.000000                  0.000000                0.000000      0.000000      0.000000      0.000000      0.000000      1.000000
+max    9.999303e+07    657.000000            110.000000    100.0000      1.000000          40.100000         100.000000          1.000000      1.000000      1.000000      1.000000      1.000000             1.000000                    1.000000      1.000000        1.000000         1.000000      1.000000       1.000000       1.000000         1.000000      1.000000                         1.000000      1.000000      1.000000           1.000000        1.000000      1.000000         1.000000      1.000000      1.000000        1.000000                 1.000000      1.000000                   1.000000      1.000000                1.000000      1.000000       1.000000      1.000000                       1.000000            1.000000                     1.000000      1.000000                  1.000000                  1.000000                1.000000      1.000000      1.000000      1.000000      1.000000      1.000000
+
+DF2 - Info:
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 12737 entries, 0 to 12736
+Data columns (total 54 columns):
+ #   Column                           Non-Null Count  Dtype         
+---  ------                           --------------  -----         
+ 0   patient_id                       12734 non-null  float64       
+ 1   admission_id                     12734 non-null  float64       
+ 2   country_of_residence             12737 non-null  int64         
+ 3   age                              12734 non-null  float64       
+ 4   sex                              12737 non-null  int64         
+ 5   date_of_first_symptoms           12734 non-null  datetime64[ns]
+ 6   admission_date                   12734 non-null  datetime64[ns]
+ 7   fever_temperature                11515 non-null  float64       
+ 8   oxygen_saturation                12730 non-null  float64       
+ 9   history_of_fever                 12737 non-null  int64         
+ 10  cough                            12737 non-null  int64         
+ 11  sore_throat                      12737 non-null  int64         
+ 12  runny_nose                       12737 non-null  int64         
+ 13  wheezing                         12737 non-null  int64         
+ 14  shortness_of_breath              12737 non-null  int64         
+ 15  lower_chest_wall_indrawing       12737 non-null  int64         
+ 16  chest_pain                       12737 non-null  int64         
+ 17  conjunctivitis                   12737 non-null  int64         
+ 18  lymphadenopathy                  12737 non-null  int64         
+ 19  headache                         12737 non-null  int64         
+ 20  loss_of_smell                    12737 non-null  int64         
+ 21  loss_of_taste                    12737 non-null  int64         
+ 22  fatigue_malaise                  12737 non-null  int64         
+ 23  anorexia                         12737 non-null  int64         
+ 24  altered_consciousness_confusion  12737 non-null  int64         
+ 25  muscle_aches                     12737 non-null  int64         
+ 26  joint_pain                       12737 non-null  int64         
+ 27  inability_to_walk                12737 non-null  int64         
+ 28  abdominal_pain                   12737 non-null  int64         
+ 29  diarrhoea                        12737 non-null  int64         
+ 30  vomiting_nausea                  12737 non-null  int64         
+ 31  skin_rash                        12737 non-null  int64         
+ 32  bleeding                         12737 non-null  int64         
+ 33  other_symptoms                   12737 non-null  int64         
+ 34  chronic_cardiac_disease          12737 non-null  int64         
+ 35  hypertension                     12737 non-null  int64         
+ 36  chronic_pulmonary_disease        12737 non-null  int64         
+ 37  asthma                           12737 non-null  int64         
+ 38  chronic_kidney_disease           12737 non-null  int64         
+ 39  obesity                          12737 non-null  int64         
+ 40  liver_disease                    12737 non-null  int64         
+ 41  asplenia                         12737 non-null  int64         
+ 42  chronic_neurological_disorder    12737 non-null  int64         
+ 43  malignant_neoplasm               12737 non-null  int64         
+ 44  chronic_hematologic_disease      12737 non-null  int64         
+ 45  AIDS_HIV                         12737 non-null  int64         
+ 46  diabetes_mellitus_type_1         12737 non-null  int64         
+ 47  diabetes_mellitus_type_2         12737 non-null  int64         
+ 48  rheumatologic_disorder           12737 non-null  int64         
+ 49  dementia                         12737 non-null  int64         
+ 50  tuberculosis                     12737 non-null  int64         
+ 51  smoking                          12737 non-null  int64         
+ 52  other_risks                      12737 non-null  int64         
+ 53  PCR_result                       12703 non-null  float64       
+dtypes: datetime64[ns](2), float64(6), int64(46)
+memory usage: 5.2 MB
+
+Columns in df1 but not in df2:
+patient ID.1: int64
+
+Columns in df2 but not in df1:
+admission_id: float64
+

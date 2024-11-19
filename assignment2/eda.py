@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from scipy.stats import chi2_contingency
 
 root = "./COVID19_data/"
 
@@ -20,18 +20,19 @@ predictor_vars2 = list(df2.columns)
 predictor_vars1.remove(target_var)
 predictor_vars2.remove(target_var)
 
+identifiers1 = ["patient ID", "patient ID.1"]
+identifiers2 = ["admission_id", "patient_id"]
+
 quantitative_vars1 = ["age", "fever_temperature", "oxygen_saturation"]
 ordinal_vars1 = []
 time_vars1 = ["date_of_first_symptoms", "BASVURUTARIHI"]
-identifiers1 = ["admission_id", "patient_id"]
-non_nominal_vars = set(quantitative_vars1 + ordinal_vars1 + time_vars1 + identifiers1)
+non_nominal_vars = set(quantitative_vars1 + ordinal_vars1 + time_vars1 + identifiers1 + [target_var])
 nominal_vars1 = [col for col in df1.columns if col not in non_nominal_vars]
 
 quantitative_vars2 = ["age", "fever_temperature", "oxygen_saturation"]
 ordinal_vars2 = []
 time_vars2 = ["date_of_first_symptoms", "admission_date"]
-identifiers2 = ["patient ID", "patient ID.1"]
-non_nominal_vars = set(quantitative_vars2 + ordinal_vars2 + time_vars2 + identifiers2)
+non_nominal_vars = set(quantitative_vars2 + ordinal_vars2 + time_vars2 + identifiers2 + [target_var])
 nominal_vars2 = [col for col in df2.columns if col not in non_nominal_vars]
 
 
@@ -156,25 +157,131 @@ def compare_columns(df1: pd.DataFrame, df2: pd.DataFrame):
 
     return df1_not_in_df2, df2_not_in_df1
 
-# VISUALIZATION EDA
-print_description_and_info(df1, df2) # Commented out because it is done
-multibar_plots(df1, target_var, quantitative_vars1, time_vars1, nominal_vars1, save_name="df1_plot.png")
-multibar_plots(df2, target_var, quantitative_vars2, time_vars2, nominal_vars2, save_name="df2_plot.png")
+def chi_square_test(df, nominal_vars, target_var, alpha=0.05, output_file="chi_square_results.txt", root=root):
+    results = []
 
-# FIXME PLOT CORRELATION OF THE QUANTITATIVE VARIABLES
-# FIXME PLOT CHI-SQUARE TEST FOR NOMINAL VARIABLES
+    for var in nominal_vars:
+        # Create a contingency table
+        aux_df = df[[var, target_var]].dropna()
+        contingency_table = pd.crosstab(aux_df[var], aux_df[target_var])
 
+        # Perform the Chi-Square test
+        chi2, p, dof, expected = chi2_contingency(contingency_table)
 
-# PREPROCESSING
-# FIXME CHANGE THE NAMES OF THE COLUMNS THAT ARE OBVIOUSLY THE SAME ONE IN BOTH DATAFRAMES
-# FIXME CHANGE THE TYPES SO IT MATCHES THE TYPE OF VARIABLE (categorical to int64 with embedding for strings)
-# FIXME MERGE DATAFRAMES
-#      CONSIDER SAME PATIENTS WITH DIFFERENT DATES
-#      CHECK THAT COLUMNS OVERLAP
-# FIXME CHANGE THE DATES TO A USABLE FORMAT
-#      OPTION 1: Treat a year as a cycle and embed it with two polar coordinates
-#      OPTION 2: Separate it into day of the hour, day of the month, day of the week, month, year, etc.
-#                This would require checking importance again with chi-square to decide which to keep
-# FIXME SCALE QUANTITATIVE VARIABLES
+        # Determine significance
+        significant = p < alpha
+
+        # Append results
+        results.append((var, chi2, p, significant))
+
+    results_sorted_by_pvalue = sorted(results, key=lambda x: x[2])
+    results_sorted_by_var = sorted(results, key=lambda x: x[0])
+
+    # Write results to a file
+    with open(root + output_file, "w") as file:
+        # file.write(f"Chi-Square Test Results (alpha={alpha}):\n")
+        # file.write("Variable\tChi2\tp-value\tSignificant\n")
+        # for var, chi2, p, significant in results:
+        #     file.write(f"{var}\t{chi2:.4f}\t{p:.4e}\t{significant}\n")
+
+        file.write(f"Chi-Square Test Results (alpha={alpha}):\n\n")
+        file.write(f"{'Variable':<30} {'Chi2':<15} {'p-value':<15} {'Significant':<10}\n")
+        file.write(f"{'-' * 70}\n")
+        for var, chi2, p, significant in results_sorted_by_pvalue:
+            file.write(f"{var:<30} {chi2:<15.4f} {p:<15.4e} {str(significant):<10}\n")
+        file.write(f"{'-' * 70}\n")
+        for var, chi2, p, significant in results_sorted_by_var:
+            file.write(f"{var:<30} {chi2:<15.4f} {p:<15.4e} {str(significant):<10}\n")
+
+    return results
+
+def calculate_correlations(df1, quantitative_vars1, df2, quantitative_vars2):
+    # Ensure only quantitative variables are used
+    df1_quant = df1[quantitative_vars1]
+    df2_quant = df2[quantitative_vars2]
+
+    # Compute correlation matrices
+    corr_df1 = df1_quant.corr()
+    corr_df2 = df2_quant.corr()
+
+    # Save correlation matrices to files (optional)
+    corr_df1.to_csv("correlations_df1.csv")
+    corr_df2.to_csv("correlations_df2.csv")
+
+    return corr_df1, corr_df2
+
+if __name__ == '__main__':
+    # VISUALIZATION EDA
+    # print_description_and_info(df1, df2) # Commented out because it is done
+    # multibar_plots(df1, target_var, quantitative_vars1, time_vars1, nominal_vars1, save_name="df1_plot.png") # Commented out because it is done
+    # multibar_plots(df2, target_var, quantitative_vars2, time_vars2, nominal_vars2, save_name="df2_plot.png") # Commented out because it is done
+
+    # PLOT CORRELATION OF THE QUANTITATIVE VARIABLES
+    # calculate_correlations(df1, quantitative_vars1, df2, quantitative_vars2) # commented out because it is done
+
+    # PLOT CHI-SQUARE TEST FOR NOMINAL VARIABLES
+    # chi_square_test(df1, nominal_vars1, target_var, alpha=0.05, output_file="chi_square_results_df1.txt") # Commented out because it is done
+    # chi_square_test(df2, nominal_vars2, target_var, alpha=0.05, output_file="chi_square_results_df2.txt") # Commented out because it is done
+
+    # PREPROCESSING
+    # FIXME CHANGE THE NAMES OF THE COLUMNS THAT ARE OBVIOUSLY THE SAME ONE IN BOTH DATAFRAMES
+    name_mapping = {
+        'gender K=female E=male': 'sex',
+        'nationality': 'country_of_residence',
+        'patient ID': 'patient_id',
+        'BASVURUTARIHI': 'admission_date'
+    }
+    df1.rename(columns=name_mapping, inplace=True)
+    quantitative_vars1 = ["age", "fever_temperature", "oxygen_saturation"]
+    ordinal_vars1 = []
+    time_vars1 = ["date_of_first_symptoms", "admission_date"]
+    identifiers1 = ["patient_id", "patient ID.1"]
+    non_nominal_vars = set(quantitative_vars1 + ordinal_vars1 + time_vars1 + identifiers1 + [target_var])
+    nominal_vars1 = [col for col in df1.columns if col not in non_nominal_vars]
+
+    #       DEAL WITH THE BASVURUTARIHI and admission_date
+    # FIXME CHANGE THE TYPES SO IT MATCHES THE TYPE OF VARIABLE (categorical to int64 with embedding for strings)
+    unique_values1 = df1['country_of_residence'].unique()
+    unique_values2 = df2['country_of_residence'].unique()
+    merged_unique_values = list(set(list(unique_values1) + list(unique_values2)))
+    merged_unique_values = [x for x in merged_unique_values if pd.notna(x)]
+    merged_unique_values.sort()
+    country_mapping = {}
+    for i, country in enumerate(merged_unique_values):
+        country_mapping[country] = i
+    df1['country_of_residence'] = df1['country_of_residence'].map(country_mapping)
+    df2['country_of_residence'] = df2['country_of_residence'].map(country_mapping)
+
+    gender_mapping = {"K": 1, "E": 0}
+    df1["sex"] = df1["sex"].map(gender_mapping)
+    df2["sex"] = df2["sex"].map(gender_mapping)
+
+    pcr_mapping = {"positive": 1, "negative": 0}
+    df1[target_var] = df1[target_var].map(pcr_mapping)
+    df2[target_var] = df2[target_var].map(pcr_mapping)
+
+    for col in nominal_vars1:
+        if df1[col].dtype != 'object':  # Check if the column is not of type object
+            df1[col] = df1[col].fillna(-2).astype('int64')  # Convert to int64
+    for col in nominal_vars2:
+        if df2[col].dtype != 'object':  # Check if the column is not of type object
+            df2[col] = df2[col].fillna(-2).astype('int64')  # Convert to int64
+
+    print_description_and_info(df1, df2, file="updated_dataframes_summary.txt") # Commented out because it is done
+
+    df1.to_csv(root + "updated_df1.csv")
+    df2.to_csv(root + "updated_df2.csv")
+
+    # FIXME -2 => NULL
+    # FIXME MERGE DATAFRAMES
+    #      CONSIDER SAME PATIENTS WITH DIFFERENT DATES
+    #      CHECK THAT COLUMNS OVERLAP
+    # FIXME CHANGE THE DATES TO A USABLE FORMAT
+    #      OPTION 1: Treat a year as a cycle and embed it with two polar coordinates
+    #      OPTION 2: Separate it into day of the hour, day of the month, day of the week, month, year, etc.
+    #                This would require checking importance again with chi-square to decide which to keep
+    # FIXME SCALE QUANTITATIVE VARIABLES
+    # FIXME OUTLIER DETECTION WITH BOXPLOTS AND STUFF FOR THE QUANTITATIVE ONES
+
 
 
