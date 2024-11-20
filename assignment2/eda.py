@@ -6,39 +6,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import chi2_contingency
 
-root = "./COVID19_data/"
+ROOT = "./COVID19_data/"
 
-file1 = "hospital1.xlsx"
-file2 = "hospital2.xlsx"
-
-df1 = pd.read_excel(root + file1)
-df2 = pd.read_excel(root + file2)
-
-target_var = "PCR_result"
-predictor_vars1 = list(df1.columns)
-predictor_vars2 = list(df2.columns)
-predictor_vars1.remove(target_var)
-predictor_vars2.remove(target_var)
-
-identifiers1 = ["patient ID", "patient ID.1"]
-identifiers2 = ["admission_id", "patient_id"]
-
-quantitative_vars1 = ["age", "fever_temperature", "oxygen_saturation"]
-ordinal_vars1 = []
-time_vars1 = ["date_of_first_symptoms", "BASVURUTARIHI"]
-non_nominal_vars = set(quantitative_vars1 + ordinal_vars1 + time_vars1 + identifiers1 + [target_var])
-nominal_vars1 = [col for col in df1.columns if col not in non_nominal_vars]
-
-quantitative_vars2 = ["age", "fever_temperature", "oxygen_saturation"]
-ordinal_vars2 = []
-time_vars2 = ["date_of_first_symptoms", "admission_date"]
-non_nominal_vars = set(quantitative_vars2 + ordinal_vars2 + time_vars2 + identifiers2 + [target_var])
-nominal_vars2 = [col for col in df2.columns if col not in non_nominal_vars]
+FILE_1 = "hospital1.xlsx"
+FILE_2 = "hospital2.xlsx"
 
 
-def print_description_and_info(df1, df2, file='dataframes_summary.txt', root=root):
+def print_description_and_info(df1, df2=None, file='dataframes_summary.txt', root=ROOT):
     # Assuming df1 and df2 are pandas DataFrames
-    with open(root + file, 'w') as file:
+    with open(os.path.join(root, file), 'w') as file:
         # Write df1.describe() to the file
         file.write("DF1 - Describe:\n")
         file.write(df1.describe().to_string())
@@ -49,27 +25,28 @@ def print_description_and_info(df1, df2, file='dataframes_summary.txt', root=roo
         df1.info(buf=file)
         file.write("\n\n")
 
-        # Write df2.describe() to the file
-        file.write("DF2 - Describe:\n")
-        file.write(df2.describe().to_string())
-        file.write("\n\n")
+        if df2 is not None:
+            # Write df2.describe() to the file
+            file.write("DF2 - Describe:\n")
+            file.write(df2.describe().to_string())
+            file.write("\n\n")
 
-        # Write df2.info() to the file
-        file.write("DF2 - Info:\n")
-        df2.info(buf=file)
-        file.write("\n")
+            # Write df2.info() to the file
+            file.write("DF2 - Info:\n")
+            df2.info(buf=file)
+            file.write("\n")
 
-        df1_not_in_df2, df2_not_in_df1 = compare_columns(df1, df2)
-        file.write("Columns in df1 but not in df2:\n")
-        for col in df1_not_in_df2:
-            file.write(f"{col}: {df1[col].dtype}\n")
-        file.write("\n")
+            df1_not_in_df2, df2_not_in_df1 = compare_columns(df1, df2)
+            file.write("Columns in df1 but not in df2:\n")
+            for col in df1_not_in_df2:
+                file.write(f"{col}: {df1[col].dtype}\n")
+            file.write("\n")
 
-        # Write columns in df2 but not in df1
-        file.write("Columns in df2 but not in df1:\n")
-        for col in df2_not_in_df1:
-            file.write(f"{col}: {df2[col].dtype}\n")
-        file.write("\n")
+            # Write columns in df2 but not in df1
+            file.write("Columns in df2 but not in df1:\n")
+            for col in df2_not_in_df1:
+                file.write(f"{col}: {df2[col].dtype}\n")
+            file.write("\n")
 """
 quantitative_vars1 = ["age", "fever_temperature", "oxygen_saturation"]
 time_vars1 = ["date_of_first_symptoms", "admission_date"]
@@ -77,7 +54,7 @@ identifiers = ["admission_id", "patient_id"]
 nominal_vars1 = others
 """
 # Column Plot: Comparing the target variable in both DataFrames
-def multibar_plots(dataframe, response_variable, quantitative_vars, time_vars, nominal_vars, root=root, save_name=""):
+def multibar_plots(dataframe, response_variable, quantitative_vars, time_vars, nominal_vars, root=ROOT, save_name=""):
     """
     Creates multi-bar plots comparing the distribution of each predictor variable across the classes
     of the response variable.
@@ -144,7 +121,7 @@ def multibar_plots(dataframe, response_variable, quantitative_vars, time_vars, n
         fig.delaxes(axes[j])
 
     plt.tight_layout()
-    plt.savefig(root + save_name)
+    plt.savefig(os.path.join(root, save_name))
     # plt.show()
 
 
@@ -157,7 +134,7 @@ def compare_columns(df1: pd.DataFrame, df2: pd.DataFrame):
 
     return df1_not_in_df2, df2_not_in_df1
 
-def chi_square_test(df, nominal_vars, target_var, alpha=0.05, output_file="chi_square_results.txt", root=root):
+def chi_square_test(df, nominal_vars, target_var, alpha=0.05, output_file="chi_square_results.txt", root=ROOT):
     results = []
 
     for var in nominal_vars:
@@ -178,7 +155,7 @@ def chi_square_test(df, nominal_vars, target_var, alpha=0.05, output_file="chi_s
     results_sorted_by_var = sorted(results, key=lambda x: x[0])
 
     # Write results to a file
-    with open(root + output_file, "w") as file:
+    with open(os.path.join(root, output_file), "w") as file:
         # file.write(f"Chi-Square Test Results (alpha={alpha}):\n")
         # file.write("Variable\tChi2\tp-value\tSignificant\n")
         # for var, chi2, p, significant in results:
@@ -195,22 +172,45 @@ def chi_square_test(df, nominal_vars, target_var, alpha=0.05, output_file="chi_s
 
     return results
 
-def calculate_correlations(df1, quantitative_vars1, df2, quantitative_vars2):
+def calculate_correlations(df1, quantitative_vars1, df2=None, quantitative_vars2=None, file1="correlations_df2.csv", file2="correlations_df1.csv"):
     # Ensure only quantitative variables are used
     df1_quant = df1[quantitative_vars1]
-    df2_quant = df2[quantitative_vars2]
-
-    # Compute correlation matrices
     corr_df1 = df1_quant.corr()
-    corr_df2 = df2_quant.corr()
+    corr_df1.to_csv(os.path.join(ROOT, file1))
 
-    # Save correlation matrices to files (optional)
-    corr_df1.to_csv("correlations_df1.csv")
-    corr_df2.to_csv("correlations_df2.csv")
+    if df2 is not None:
+        df2_quant = df2[quantitative_vars2]
+        corr_df2 = df2_quant.corr()
+        corr_df2.to_csv(os.path.join(ROOT, file2))
 
-    return corr_df1, corr_df2
+        return corr_df1, corr_df2
+    return corr_df1
 
 if __name__ == '__main__':
+    df1 = pd.read_excel(os.path.join(ROOT, FILE_1))
+    df2 = pd.read_excel(os.path.join(ROOT, FILE_2))
+
+    target_var = "PCR_result"
+    predictor_vars1 = list(df1.columns)
+    predictor_vars2 = list(df2.columns)
+    predictor_vars1.remove(target_var)
+    predictor_vars2.remove(target_var)
+
+    identifiers1 = ["patient ID", "patient ID.1"]
+    identifiers2 = ["admission_id", "patient_id"]
+
+    quantitative_vars1 = ["age", "fever_temperature", "oxygen_saturation"]
+    ordinal_vars1 = []
+    time_vars1 = ["date_of_first_symptoms", "BASVURUTARIHI"]
+    non_nominal_vars = set(quantitative_vars1 + ordinal_vars1 + time_vars1 + identifiers1 + [target_var])
+    nominal_vars1 = [col for col in df1.columns if col not in non_nominal_vars]
+
+    quantitative_vars2 = ["age", "fever_temperature", "oxygen_saturation"]
+    ordinal_vars2 = []
+    time_vars2 = ["date_of_first_symptoms", "admission_date"]
+    non_nominal_vars = set(quantitative_vars2 + ordinal_vars2 + time_vars2 + identifiers2 + [target_var])
+    nominal_vars2 = [col for col in df2.columns if col not in non_nominal_vars]
+
     # VISUALIZATION EDA
     # print_description_and_info(df1, df2) # Commented out because it is done
     # multibar_plots(df1, target_var, quantitative_vars1, time_vars1, nominal_vars1, save_name="df1_plot.png") # Commented out because it is done
@@ -225,6 +225,7 @@ if __name__ == '__main__':
 
     # PREPROCESSING
     # FIXME CHANGE THE NAMES OF THE COLUMNS THAT ARE OBVIOUSLY THE SAME ONE IN BOTH DATAFRAMES
+    #       DEAL WITH THE BASVURUTARIHI and admission_date
     name_mapping = {
         'gender K=female E=male': 'sex',
         'nationality': 'country_of_residence',
@@ -239,8 +240,7 @@ if __name__ == '__main__':
     non_nominal_vars = set(quantitative_vars1 + ordinal_vars1 + time_vars1 + identifiers1 + [target_var])
     nominal_vars1 = [col for col in df1.columns if col not in non_nominal_vars]
 
-    #       DEAL WITH THE BASVURUTARIHI and admission_date
-    # FIXME CHANGE THE TYPES SO IT MATCHES THE TYPE OF VARIABLE (categorical to int64 with embedding for strings)
+    # CHANGE THE TYPES SO IT MATCHES THE TYPE OF VARIABLE (categorical to int64 with embedding for strings)
     unique_values1 = df1['country_of_residence'].unique()
     unique_values2 = df2['country_of_residence'].unique()
     merged_unique_values = list(set(list(unique_values1) + list(unique_values2)))
@@ -269,19 +269,60 @@ if __name__ == '__main__':
 
     print_description_and_info(df1, df2, file="updated_dataframes_summary.txt") # Commented out because it is done
 
-    df1.to_csv(root + "updated_df1.csv")
-    df2.to_csv(root + "updated_df2.csv")
+    # Change back -2 => NULL
+    df1 = df1.replace(-2, np.nan)
+    df2 = df2.replace(-2, np.nan)
 
-    # FIXME -2 => NULL
+    df1.to_csv(os.path.join(ROOT, "updated_df1.csv"))
+    df2.to_csv(os.path.join(ROOT, "updated_df2.csv"))
+
     # FIXME MERGE DATAFRAMES
-    #      CONSIDER SAME PATIENTS WITH DIFFERENT DATES
-    #      CHECK THAT COLUMNS OVERLAP
+    #       DONE COLUMN WISE MERGE
+    #           CHECK THAT COLUMNS OVERLAP
+    #       FIXME TUPLE MERGE AS REQUIRED
+    cols = set(df1.columns)
+    cols = list(cols.intersection(df2.columns))
+    df1_premerge = df1[cols]
+    df2_premerge = df2[cols]
+    df = pd.concat([df1_premerge, df2_premerge], ignore_index=True)
+
+    # print_description_and_info(df, file="merged_df_description.txt") # Commented out because it is done
+    # multibar_plots(df, target_var, quantitative_vars2, time_vars2, nominal_vars2, save_name="merged_df_plot.png") # Commented out because it is done
+    # calculate_correlations(df, quantitative_vars2, file1="merged_correlation.txt") # commented out because it is done
+    # chi_square_test(df, nominal_vars2, target_var, alpha=0.05, output_file="merged_chi_square_results_df.txt") # Commented out because it is done
+
+    # df.to_csv(os.path.join(ROOT, "merged_cols_df.csv"))
+
     # FIXME CHANGE THE DATES TO A USABLE FORMAT
     #      OPTION 1: Treat a year as a cycle and embed it with two polar coordinates
+    for predictor in time_vars2:
+        dayofyear = df[predictor].dt.dayofyear
+        sin = np.sin(2 * np.pi * dayofyear / 365.0)
+        cos = np.cos(2 * np.pi * dayofyear / 365.0)
+        df[predictor + "_sin"] = sin
+        df[predictor + "_cos"] = cos
+
+
     #      OPTION 2: Separate it into day of the hour, day of the month, day of the week, month, year, etc.
     #                This would require checking importance again with chi-square to decide which to keep
+    new_nominal = []
+    for predictor in time_vars2:
+        df[predictor + '_year'] = df[predictor].dt.year
+        df[predictor + '_month'] = df[predictor].dt.month
+        df[predictor + '_day'] = df[predictor].dt.day
+        df[predictor + '_dayofweek'] = df[predictor].dt.dayofweek
+        new_nominal += [predictor + '_year',predictor + '_month',predictor + '_day',predictor + '_dayofweek']
+    chi_square_test(df, nominal_vars=nominal_vars2 + new_nominal, target_var=target_var, output_file="chi2_with_time.txt")
     # FIXME SCALE QUANTITATIVE VARIABLES
+
+
     # FIXME OUTLIER DETECTION WITH BOXPLOTS AND STUFF FOR THE QUANTITATIVE ONES
+
+
+
+
+
+
 
 
 

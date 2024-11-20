@@ -1,0 +1,74 @@
+DF1 - Describe:
+          skin_rash  abdominal_pain      anorexia       obesity  lymphadenopathy       smoking  rheumatologic_disorder  altered_consciousness_confusion   other_risks         cough  fever_temperature  inability_to_walk  shortness_of_breath    runny_nose      dementia  loss_of_taste  history_of_fever      headache  malignant_neoplasm  chronic_neurological_disorder      wheezing  liver_disease         date_of_first_symptoms    chest_pain                 admission_date   sore_throat    joint_pain  lower_chest_wall_indrawing  chronic_hematologic_disease           age    patient_id  muscle_aches  loss_of_smell           sex  other_symptoms    PCR_result  diabetes_mellitus_type_1  tuberculosis     diarrhoea  chronic_cardiac_disease        asthma      asplenia  chronic_pulmonary_disease  diabetes_mellitus_type_2      bleeding      AIDS_HIV  vomiting_nausea  conjunctivitis  country_of_residence  chronic_kidney_disease  oxygen_saturation  hypertension  fatigue_malaise
+count  27448.000000    27448.000000  27448.000000  27427.000000     27446.000000  27449.000000            27447.000000                     27448.000000  27449.000000  27448.000000       25759.000000       27448.000000         27446.000000  27446.000000  27447.000000   27448.000000      27441.000000  27448.000000         27449.00000                   27447.000000  27446.000000   27443.000000                          27446  27446.000000                          27446  27448.000000  27448.000000                27446.000000                 27447.000000  27446.000000  2.744600e+04  27448.000000   27448.000000  27445.000000    27410.000000  26239.000000              27446.000000  27449.000000  27448.000000             27448.000000  27448.000000  27427.000000               27448.000000              27447.000000  27410.000000  27447.000000     27448.000000    27446.000000          27446.000000            27441.000000       27438.000000  27448.000000     27448.000000
+mean       0.001494        0.018544      0.001894      0.001714         0.002405      0.087836                0.001676                         0.001858      0.001166      0.292152          37.342719           0.001239             0.131240      0.154084      0.001530       0.001348          0.494188      0.183474             0.00317                       0.001348      0.009473       0.003134  2021-10-09 03:32:11.466151680      0.009655  2021-10-09 03:32:11.466151680      0.308547      0.007760                    0.001494                     0.001785     43.027618  4.986306e+07      0.184859       0.002040      0.581017        0.001277      0.846526                  0.001712      0.001457      0.135857                 0.004663      0.112030      0.001458                   0.002405                  0.001822      0.001751      0.001494         0.116220        0.001166             93.007943                0.001676          93.625519      0.132250         0.391285
+min        0.000000        0.000000      0.000000      0.000000         0.000000      0.000000                0.000000                         0.000000      0.000000      0.000000          34.800000           0.000000             0.000000      0.000000      0.000000       0.000000          0.000000      0.000000             0.00000                       0.000000      0.000000       0.000000            2021-03-01 00:00:00      0.000000            2021-03-01 00:00:00      0.000000      0.000000                    0.000000                     0.000000     -1.000000  5.680000e+02      0.000000       0.000000      0.000000        0.000000      0.000000                  0.000000      0.000000      0.000000                 0.000000      0.000000      0.000000                   0.000000                  0.000000      0.000000      0.000000         0.000000        0.000000              0.000000                0.000000          -1.000000      0.000000         0.000000
+25%        0.000000        0.000000      0.000000      0.000000         0.000000      0.000000                0.000000                         0.000000      0.000000      0.000000          36.700000           0.000000             0.000000      0.000000      0.000000       0.000000          0.000000      0.000000             0.00000                       0.000000      0.000000       0.000000            2021-07-26 00:00:00      0.000000            2021-07-26 00:00:00      0.000000      0.000000                    0.000000                     0.000000     29.000000  2.468913e+07      0.000000       0.000000      0.000000        0.000000      1.000000                  0.000000      0.000000      0.000000                 0.000000      0.000000      0.000000                   0.000000                  0.000000      0.000000      0.000000         0.000000        0.000000             95.000000                0.000000          94.000000      0.000000         0.000000
+50%        0.000000        0.000000      0.000000      0.000000         0.000000      0.000000                0.000000                         0.000000      0.000000      0.000000          37.200000           0.000000             0.000000      0.000000      0.000000       0.000000          0.000000      0.000000             0.00000                       0.000000      0.000000       0.000000            2021-10-18 23:05:00      0.000000            2021-10-18 23:05:00      0.000000      0.000000                    0.000000                     0.000000     40.000000  5.001859e+07      0.000000       0.000000      1.000000        0.000000      1.000000                  0.000000      0.000000      0.000000                 0.000000      0.000000      0.000000                   0.000000                  0.000000      0.000000      0.000000         0.000000        0.000000             95.000000                0.000000          95.000000      0.000000         0.000000
+75%        0.000000        0.000000      0.000000      0.000000         0.000000      0.000000                0.000000                         0.000000      0.000000      1.000000          38.000000           0.000000             0.000000      0.000000      0.000000       0.000000          1.000000      0.000000             0.00000                       0.000000      0.000000       0.000000            2022-01-10 00:00:00      0.000000            2022-01-10 00:00:00      1.000000      0.000000                    0.000000                     0.000000     55.000000  7.468301e+07      0.000000       0.000000      1.000000        0.000000      1.000000                  0.000000      0.000000      0.000000                 0.000000      0.000000      0.000000                   0.000000                  0.000000      0.000000      0.000000         0.000000        0.000000             95.000000                0.000000          96.000000      0.000000         1.000000
+max        1.000000        1.000000      1.000000      1.000000         1.000000      1.000000                1.000000                         1.000000      1.000000      1.000000          40.100000           1.000000             1.000000      1.000000      1.000000       1.000000          1.000000      1.000000             1.00000                       1.000000      1.000000       1.000000            2022-03-14 00:00:00      1.000000            2022-03-14 00:00:00      1.000000      1.000000                    1.000000                     1.000000    100.000000  9.999303e+07      1.000000       1.000000      1.000000        1.000000      1.000000                  1.000000      1.000000      1.000000                 1.000000      1.000000      1.000000                   1.000000                  1.000000      1.000000      1.000000         1.000000        1.000000            110.000000                1.000000         100.000000      1.000000         1.000000
+std        0.038621        0.134911      0.043485      0.041361         0.048980      0.283061                0.040905                         0.043066      0.034125      0.454760           0.792173           0.035174             0.337668      0.361036      0.039089       0.036691          0.499975      0.387062             0.05621                       0.036692      0.096870       0.055893                            NaN      0.097788                            NaN      0.461902      0.087751                    0.038622                     0.042215     18.152785  2.892681e+07      0.388190       0.045124      0.493402        0.035712      0.360451                  0.041347      0.038147      0.342643                 0.068131      0.315409      0.038162                   0.048978                  0.042643      0.041811      0.038621         0.320494        0.034126             11.790106                0.040909           8.020814      0.338769         0.488047
+
+DF1 - Info:
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 27449 entries, 0 to 27448
+Data columns (total 53 columns):
+ #   Column                           Non-Null Count  Dtype         
+---  ------                           --------------  -----         
+ 0   skin_rash                        27448 non-null  float64       
+ 1   abdominal_pain                   27448 non-null  float64       
+ 2   anorexia                         27448 non-null  float64       
+ 3   obesity                          27427 non-null  float64       
+ 4   lymphadenopathy                  27446 non-null  float64       
+ 5   smoking                          27449 non-null  int64         
+ 6   rheumatologic_disorder           27447 non-null  float64       
+ 7   altered_consciousness_confusion  27448 non-null  float64       
+ 8   other_risks                      27449 non-null  int64         
+ 9   cough                            27448 non-null  float64       
+ 10  fever_temperature                25759 non-null  float64       
+ 11  inability_to_walk                27448 non-null  float64       
+ 12  shortness_of_breath              27446 non-null  float64       
+ 13  runny_nose                       27446 non-null  float64       
+ 14  dementia                         27447 non-null  float64       
+ 15  loss_of_taste                    27448 non-null  float64       
+ 16  history_of_fever                 27441 non-null  float64       
+ 17  headache                         27448 non-null  float64       
+ 18  malignant_neoplasm               27449 non-null  int64         
+ 19  chronic_neurological_disorder    27447 non-null  float64       
+ 20  wheezing                         27446 non-null  float64       
+ 21  liver_disease                    27443 non-null  float64       
+ 22  date_of_first_symptoms           27446 non-null  datetime64[ns]
+ 23  chest_pain                       27446 non-null  float64       
+ 24  admission_date                   27446 non-null  datetime64[ns]
+ 25  sore_throat                      27448 non-null  float64       
+ 26  joint_pain                       27448 non-null  float64       
+ 27  lower_chest_wall_indrawing       27446 non-null  float64       
+ 28  chronic_hematologic_disease      27447 non-null  float64       
+ 29  age                              27446 non-null  float64       
+ 30  patient_id                       27446 non-null  float64       
+ 31  muscle_aches                     27448 non-null  float64       
+ 32  loss_of_smell                    27448 non-null  float64       
+ 33  sex                              27445 non-null  float64       
+ 34  other_symptoms                   27410 non-null  float64       
+ 35  PCR_result                       26239 non-null  float64       
+ 36  diabetes_mellitus_type_1         27446 non-null  float64       
+ 37  tuberculosis                     27449 non-null  int64         
+ 38  diarrhoea                        27448 non-null  float64       
+ 39  chronic_cardiac_disease          27448 non-null  float64       
+ 40  asthma                           27448 non-null  float64       
+ 41  asplenia                         27427 non-null  float64       
+ 42  chronic_pulmonary_disease        27448 non-null  float64       
+ 43  diabetes_mellitus_type_2         27447 non-null  float64       
+ 44  bleeding                         27410 non-null  float64       
+ 45  AIDS_HIV                         27447 non-null  float64       
+ 46  vomiting_nausea                  27448 non-null  float64       
+ 47  conjunctivitis                   27446 non-null  float64       
+ 48  country_of_residence             27446 non-null  float64       
+ 49  chronic_kidney_disease           27441 non-null  float64       
+ 50  oxygen_saturation                27438 non-null  float64       
+ 51  hypertension                     27448 non-null  float64       
+ 52  fatigue_malaise                  27448 non-null  float64       
+dtypes: datetime64[ns](2), float64(47), int64(4)
+memory usage: 11.1 MB
+
+
