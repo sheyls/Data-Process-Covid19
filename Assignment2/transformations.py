@@ -41,6 +41,7 @@ import os
 
 from sklearn.preprocessing import PowerTransformer
 from spacy.cli import train
+from sqlalchemy.dialects.mssql.information_schema import columns
 
 from Assignment2.eda import multibar_plots
 
