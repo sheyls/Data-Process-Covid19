@@ -280,6 +280,39 @@ def print_non_param_homogeneity_tests(df, quantitative_vars, target_column, file
             f.write(f"  Wilcoxon Rank-Sum Test p-value: {w_p_value:.3e}\n")
             f.write("-" * 50 + "\n")
 
+
+def print_class_balance(df, target_var, file):
+    """
+    Prints the class balance of the target variable in the given dataframe and optionally writes it to a file.
+
+    Parameters:
+    df (pd.DataFrame): The dataframe containing the data.
+    target_var (str): The name of the target variable column.
+    file (str, optional): Path to the file where the class balance should be saved. Defaults to None.
+
+    Returns:
+    None
+    """
+    class_counts = df[target_var].value_counts()
+    class_percentages = df[target_var].value_counts(normalize=True) * 100
+
+    # Prepare the class balance output
+    balance_output = "\n".join(
+        f"Class '{cls}': {count} samples ({percentage:.2f}%)"
+        for cls, count, percentage in zip(class_counts.index, class_counts, class_percentages)
+    )
+
+    # Print the results
+    print("Class Balance:")
+    print(balance_output)
+
+    # Write to file if specified
+    if file:
+        with open(file, 'w') as f:
+            f.write("Class Balance:\n")
+            f.write(balance_output)
+
+
 if __name__ == '__main__':
     df1 = pd.read_excel(os.path.join(ROOT, FILE_1))
     df2 = pd.read_excel(os.path.join(ROOT, FILE_2))
@@ -384,7 +417,7 @@ if __name__ == '__main__':
     # calculate_correlations(df, quantitative_vars2, file1="merged_correlation.txt") # commented out because it is done
     # chi_square_test(df, nominal_vars2, target_var, alpha=0.05, output_file="merged_chi_square_results_df.txt") # Commented out because it is done
     print_non_param_homogeneity_tests(df, quantitative_vars2, target_var, os.path.join(ROOT, "merged_quantitative_tests.txt"))
-
+    print_class_balance(df, target_var, file=os.path.join(ROOT, "merged_class_balance.txt"))
     # df.to_csv(os.path.join(ROOT, "merged_cols_df.csv"))
 
     # CHANGE THE DATES TO A USABLE FORMAT
@@ -430,7 +463,8 @@ if __name__ == '__main__':
     calculate_correlations(df, quantitative_vars2, file1="extended_correlations.txt")
     print_non_param_homogeneity_tests(df, quantitative_vars2, target_var, os.path.join(ROOT, "extended_quantitative_tests.txt"))
     classify_and_write(df, nominal_vars2, ordinal_vars2, quantitative_vars2, os.path.join(ROOT, 'extended_variables_classification.txt'))
-    df.to_csv(os.path.join(ROOT, "extended_df.csv"))
+    print_class_balance(df, target_var, file=os.path.join(ROOT, "extended_class_balance.txt"))
+    df.to_csv(os.path.join(ROOT, "extended_df.csv"), index=False)
 
 
     # FINAL VARIABLE SELECTION USING EDA (DISCARDING IRRELEVANT VARIABLES)
