@@ -39,6 +39,7 @@ import os
 
 from sklearn.preprocessing import PowerTransformer
 from spacy.cli import train
+from sqlalchemy.dialects.mssql.information_schema import columns
 
 from Assignment2.eda import multibar_plots
 
@@ -48,9 +49,10 @@ DS_NAME = "extended_df.csv"
 import pandas as pd
 
 def balance_classes_with_smote(df):
-    X = df.drop(columns)
+    X = df.drop(columns='target')
+    y = df['target']
     balancer = SMOTE(random_state=10)
-    X_balanced
+    X_balanced, y
 
 def one_hot_encode_column(df, column_name):
     """
