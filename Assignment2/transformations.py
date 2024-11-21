@@ -1,6 +1,7 @@
 """
 This file should contain the scalings and other transformations that are parametric and require using only the training set.
 
+BEFORE SUNDAY!?
 
 ## EDA
 - [x] Analizar el balance del target
@@ -10,9 +11,9 @@ This file should contain the scalings and other transformations that are paramet
 - [X] Separar en train-test
 - [X] transformaciones para ponernos mas normales (log)
 - [Fran] outliers (detect and remove)
-- [ ] missings (fill nan's)
+- [Sheyla] missings (fill nan's)
 - [x] transformar pais a numerico (vector)
-- [SHEYLA ] Balancear las clases < 15 - 85 por ahora
+- [x] Balancear las clases < 15 - 85 por ahora
 
 ## Entrenar
 Implementar modelos:
@@ -34,6 +35,7 @@ from docutils.frontend import validate_encoding_and_error_handler
 from pandas.core.common import random_state
 from scipy.special import ellip_harm
 from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
 import pandas as pd
 import os
 
@@ -45,11 +47,35 @@ from Assignment2.eda import multibar_plots
 ROOT = "./COVID19_data/"
 DS_NAME = "extended_df.csv"
 
-import pandas as pd
+def balance_classes(df, target_column, output_file_name="class_balance_results.txt"):
+    """
+    Balances the classes in a dataset using the specified method.
 
-def balance_classes_with_smote(df):     
-    balancer = SMOTE(random_state=10)
-    X_balanced
+    :param df: pandas DataFrame containing the dataset.
+    :param target_column: The name of the target column to balance.
+    :param method: The balancing method to use oversampling using SMOTE.
+    :return: A new balanced DataFrame.
+    """
+    X = df.drop(columns=[target_column])
+    y = df[target_column]
+    
+    balancer = SMOTE(random_state=15)
+
+    X_balanced, y_balanced = balancer.fit_resample(X, y)
+    
+    # Combine back into a DataFrame
+    balanced_df = pd.concat([pd.DataFrame(X_balanced, columns=X.columns), 
+                             pd.DataFrame(y_balanced, columns=[target_column])], axis=1)
+    
+    # Save results to a text file
+    with open(output_file_name, "w") as file:
+        file.write(f"Classes balanced using SMOTE.\n")
+        file.write(f"Class distribution:\n{balanced_df[target_column].value_counts()}\n")
+    
+    print(f"Classes balanced using SMOTE.\n")
+    print(f"Class distribution:\n{balanced_df[target_column].value_counts()}")
+    
+    return balanced_df
 
 def one_hot_encode_column(df, column_name):
     """
@@ -123,6 +149,29 @@ def powertransform(df, vars):
     return q_transformers
 
 
+def check_missing_values(df):
+    """
+    Check for missing values in the DataFrame and calculate the percentage of missing data for each column.
+    
+    Parameters:
+        df (pd.DataFrame): The DataFrame to check for missing values.
+    
+    Returns:
+        pd.DataFrame: A DataFrame containing counts and percentages of missing values for each column.
+    """
+    # Check for missing values in each column
+    missing_values = df.isnull().sum()
+    
+    # Calculate the percentage of missing data for each column
+    missing_percentage = (missing_values / df.shape[0]) * 100
+    
+    missing_data = pd.DataFrame({'Missing Values': missing_values, 'Percentage': missing_percentage})
+
+    # WE NEED TO DECIDE WHAT TO DO WITH THE MISSING DATA
+    # (All columns has < 0.something % missing data except for one that has 6 %)
+    
+    return missing_data
+
 if __name__ == "__main__":
     """
     Nominal Variables:
@@ -181,6 +230,8 @@ if __name__ == "__main__":
     min_age, max_age = quantitative_transforms["age"].transform(np.array(min_age).reshape(-1, 1)), quantitative_transforms["age"].transform(np.array(max_age).reshape(-1, 1))
     df.loc[min_age >= df["age"] | df["age"] >= max_age, "age"] = np.nan
     
+    # Apply class balancing
+    df_train = balance_classes(df_train, target_var)
 
     # Apply One-hot encoding to country_of_residence column
     df_train = one_hot_encode_column(df_train, "country_of_residence")
