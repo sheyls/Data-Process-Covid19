@@ -1,0 +1,8 @@
+Nominal Variables:
+country_of_residence, sex, history_of_fever, cough, sore_throat, runny_nose, wheezing, shortness_of_breath, lower_chest_wall_indrawing, chest_pain, conjunctivitis, lymphadenopathy, headache, loss_of_smell, loss_of_taste, fatigue_malaise, anorexia, altered_consciousness_confusion, muscle_aches, joint_pain, inability_to_walk, abdominal_pain, diarrhoea, vomiting_nausea, skin_rash, bleeding, other_symptoms, chronic_cardiac_disease, hypertension, chronic_pulmonary_disease, asthma, chronic_kidney_disease, obesity, liver_disease, asplenia, chronic_neurological_disorder, malignant_neoplasm, chronic_hematologic_disease, AIDS_HIV, diabetes_mellitus_type_1, diabetes_mellitus_type_2, rheumatologic_disorder, dementia, tuberculosis, smoking, other_risks
+
+Ordinal Variables:
+date_of_first_symptoms_year, date_of_first_symptoms_month, date_of_first_symptoms_dayofmonth, date_of_first_symptoms_dayofyear, date_of_first_symptoms_dayofweek, admission_date_year, admission_date_month, admission_date_dayofmonth, admission_date_dayofyear, admission_date_dayofweek
+
+Quantitative Variables:
+age, fever_temperature, oxygen_saturation, date_of_first_symptoms_sin, date_of_first_symptoms_cos, admission_date_sin, admission_date_cos

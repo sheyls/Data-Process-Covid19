@@ -1,0 +1,12 @@
+Significance Tests for 'age':
+  Kolmogorov-Smirnov Test p-value: 2.435e-13
+  Wilcoxon Rank-Sum Test p-value: 6.510e-16
+--------------------------------------------------
+Significance Tests for 'fever_temperature':
+  Kolmogorov-Smirnov Test p-value: 9.853e-01
+  Wilcoxon Rank-Sum Test p-value: 9.073e-01
+--------------------------------------------------
+Significance Tests for 'oxygen_saturation':
+  Kolmogorov-Smirnov Test p-value: 8.107e-03
+  Wilcoxon Rank-Sum Test p-value: 2.903e-05
+--------------------------------------------------

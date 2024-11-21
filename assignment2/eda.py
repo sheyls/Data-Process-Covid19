@@ -4,7 +4,9 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy.stats import chi2_contingency
+from scipy.stats import chi2_contingency, ks_2samp, ranksums
+
+from sklearn.preprocessing import RobustScaler
 
 ROOT = "./COVID19_data/"
 
@@ -94,7 +96,8 @@ def multibar_plots(dataframe, response_variable, quantitative_vars, time_vars, n
             # For nominal predictors, plot counts per class
             sns.countplot(data=dataframe, x=predictor, hue=response_variable, ax=ax)
             ax.set_title(f'Distribution of {predictor} by {response_variable}')
-            ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+            # ax.set_xticks(range(1, 13))
+            # ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
             ax.set_yscale('log')
         else: # time_vars
             dataframe[predictor + '_year'] = dataframe[predictor].dt.year
@@ -186,6 +189,97 @@ def calculate_correlations(df1, quantitative_vars1, df2=None, quantitative_vars2
         return corr_df1, corr_df2
     return corr_df1
 
+
+def save_boxplots_and_histograms(df, quantitative_vars, save_dir, file_name, percentile=(0.25,99.75)):
+    """
+    Create boxplots and histograms side by side for each column in quantitative_vars and save the figure.
+
+    Parameters:
+    - df (pd.DataFrame): The DataFrame containing the data.
+    - quantitative_vars (list): A list of column names to create plots for.
+    - save_dir (str): The directory to save the figure.
+    - file_name (str): The name of the output file (e.g., 'boxplots_histograms.png').
+    """
+    # Ensure the save directory exists
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, file_name)
+
+    # Number of variables
+    num_vars = len(quantitative_vars)
+
+    # Create a figure with 2 subplots for each variable (boxplot + histogram)
+    fig, axes = plt.subplots(num_vars, 3, figsize=(18, 6 * num_vars), constrained_layout=True)
+
+    # Ensure axes are iterable for a single column
+    if num_vars == 1:
+        axes = [axes]
+
+    # Generate boxplot and histogram for each variable
+    for idx, predictor in enumerate(quantitative_vars):
+        boxplot_ax = axes[idx][0] if num_vars > 1 else axes[0]
+        hist_ax = axes[idx][1] if num_vars > 1 else axes[1]
+        outlier_hist_ax = axes[idx][2] if num_vars > 1 else axes[2]
+
+        # Boxplot
+        sns.boxplot(y=df[predictor], color="skyblue", ax=boxplot_ax)
+        boxplot_ax.set_title(f'Boxplot of {predictor}')
+        boxplot_ax.set_ylabel(predictor)
+        boxplot_ax.set_xlabel('Values')
+
+        # Histogram
+        sns.histplot(df[predictor], kde=True, color="skyblue", ax=hist_ax)
+        hist_ax.set_title(f'Histogram of {predictor}')
+        hist_ax.set_xlabel('Values')
+        hist_ax.set_ylabel('Frequency')
+
+        data = df[predictor].dropna().values
+        a, b = np.percentile(data, percentile)
+        bins = np.linspace(data.min(), data.max(), 50)
+        outlier_hist_ax.hist(data[(data >= a) & (data <= b)], bins=bins, color='blue', label='1-99 Percentile')
+        outlier_hist_ax.hist(data[data < a], bins=bins, color='red', label='Below  0.25 Percentile')
+        outlier_hist_ax.hist(data[data > b], bins=bins, color='red', label='Above 99.75 Percentile')
+        outlier_hist_ax.set_title(f'Outlier Highlighted Histogram of {predictor}')
+        outlier_hist_ax.set_xlabel('Values')
+        outlier_hist_ax.set_ylabel('Frequency')
+        outlier_hist_ax.legend()
+
+    # Save the figure
+    plt.savefig(save_path)
+    plt.close(fig)  # Close the figure to free memory
+
+    print(f"Boxplots and histograms saved to: {save_path}")
+
+
+def classify_and_write(df, nominal_columns, ordinal_columns, quantitative_columns, file_name):
+    # Prepare the text to write to file
+    output = f"Nominal Variables:\n{', '.join(nominal_columns) if nominal_columns else 'None'}\n\n"
+    output += f"Ordinal Variables:\n{', '.join(ordinal_columns) if ordinal_columns else 'None'}\n\n"
+    output += f"Quantitative Variables:\n{', '.join(quantitative_columns) if quantitative_columns else 'None'}\n"
+
+    # Write to a text file
+    with open(file_name, 'w') as f:
+        f.write(output)
+
+
+def print_non_param_homogeneity_tests(df, quantitative_vars, target_column, file_path):
+    with open(file_path, 'w') as f:
+        for var in quantitative_vars:
+            # Split the data into two groups based on the target variable
+            class_0 = df[df[target_column] == 0][var].dropna()
+            class_1 = df[df[target_column] == 1][var].dropna()
+
+            # Perform Kolmogorov-Smirnov Test
+            ks_stat, ks_p_value = ks_2samp(class_0, class_1)
+
+            # Perform Wilcoxon Rank-Sum Test
+            w_stat, w_p_value = ranksums(class_0, class_1)
+
+            # Pretty print the results
+            f.write(f"Significance Tests for '{var}':\n")
+            f.write(f"  Kolmogorov-Smirnov Test p-value: {ks_p_value:.3e}\n")
+            f.write(f"  Wilcoxon Rank-Sum Test p-value: {w_p_value:.3e}\n")
+            f.write("-" * 50 + "\n")
+
 if __name__ == '__main__':
     df1 = pd.read_excel(os.path.join(ROOT, FILE_1))
     df2 = pd.read_excel(os.path.join(ROOT, FILE_2))
@@ -260,18 +354,17 @@ if __name__ == '__main__':
     df1[target_var] = df1[target_var].map(pcr_mapping)
     df2[target_var] = df2[target_var].map(pcr_mapping)
 
-    for col in nominal_vars1:
-        if df1[col].dtype != 'object':  # Check if the column is not of type object
-            df1[col] = df1[col].fillna(-2).astype('int64')  # Convert to int64
-    for col in nominal_vars2:
-        if df2[col].dtype != 'object':  # Check if the column is not of type object
-            df2[col] = df2[col].fillna(-2).astype('int64')  # Convert to int64
+    # CHANGING THE TYPE IS ONLY VIABLE WITHOUT NULLS THERE
+    # for col in nominal_vars1:
+    #     if df1[col].dtype != 'object':  # Check if the column is not of type object
+    #         df1[col] = df1[col].fillna(-2).astype('int64')  # Convert to int64
+    # for col in nominal_vars2:
+    #     if df2[col].dtype != 'object':  # Check if the column is not of type object
+    #         df2[col] = df2[col].fillna(-2).astype('int64')  # Convert to int64
+    # df1 = df1.replace(-2, np.nan)
+    # df2 = df2.replace(-2, np.nan)
 
-    print_description_and_info(df1, df2, file="updated_dataframes_summary.txt") # Commented out because it is done
-
-    # Change back -2 => NULL
-    df1 = df1.replace(-2, np.nan)
-    df2 = df2.replace(-2, np.nan)
+    # print_description_and_info(df1, df2, file="updated_dataframes_summary.txt") # Commented out because it is done
 
     df1.to_csv(os.path.join(ROOT, "updated_df1.csv"))
     df2.to_csv(os.path.join(ROOT, "updated_df2.csv"))
@@ -290,33 +383,104 @@ if __name__ == '__main__':
     # multibar_plots(df, target_var, quantitative_vars2, time_vars2, nominal_vars2, save_name="merged_df_plot.png") # Commented out because it is done
     # calculate_correlations(df, quantitative_vars2, file1="merged_correlation.txt") # commented out because it is done
     # chi_square_test(df, nominal_vars2, target_var, alpha=0.05, output_file="merged_chi_square_results_df.txt") # Commented out because it is done
+    print_non_param_homogeneity_tests(df, quantitative_vars2, target_var, os.path.join(ROOT, "merged_quantitative_tests.txt"))
 
     # df.to_csv(os.path.join(ROOT, "merged_cols_df.csv"))
 
-    # FIXME CHANGE THE DATES TO A USABLE FORMAT
+    # CHANGE THE DATES TO A USABLE FORMAT
     #      OPTION 1: Treat a year as a cycle and embed it with two polar coordinates
+    new_quantitative = []
     for predictor in time_vars2:
         dayofyear = df[predictor].dt.dayofyear
         sin = np.sin(2 * np.pi * dayofyear / 365.0)
         cos = np.cos(2 * np.pi * dayofyear / 365.0)
         df[predictor + "_sin"] = sin
         df[predictor + "_cos"] = cos
-
+        new_quantitative += [predictor + "_sin", predictor + "_cos"]
+    quantitative_vars2 += new_quantitative
 
     #      OPTION 2: Separate it into day of the hour, day of the month, day of the week, month, year, etc.
     #                This would require checking importance again with chi-square to decide which to keep
-    new_nominal = []
+    new_ordinal = []
     for predictor in time_vars2:
         df[predictor + '_year'] = df[predictor].dt.year
         df[predictor + '_month'] = df[predictor].dt.month
-        df[predictor + '_day'] = df[predictor].dt.day
+        df[predictor + '_dayofmonth'] = df[predictor].dt.day
+        df[predictor + '_dayofyear'] = df[predictor].dt.dayofyear
         df[predictor + '_dayofweek'] = df[predictor].dt.dayofweek
-        new_nominal += [predictor + '_year',predictor + '_month',predictor + '_day',predictor + '_dayofweek']
-    chi_square_test(df, nominal_vars=nominal_vars2 + new_nominal, target_var=target_var, output_file="chi2_with_time.txt")
-    # FIXME SCALE QUANTITATIVE VARIABLES
+        new_ordinal += [predictor + '_year',predictor + '_month',predictor + '_dayofmonth',predictor + '_dayofyear',predictor + '_dayofweek']
 
 
-    # FIXME OUTLIER DETECTION WITH BOXPLOTS AND STUFF FOR THE QUANTITATIVE ONES
+    ordinal_vars2 += new_ordinal
+
+    # SCALE QUANTITATIVE VARIABLES AND BOXPLOTS
+    # save_boxplots_and_histograms(df, quantitative_vars=quantitative_vars2, save_dir=ROOT, file_name='merged_boxplots.png')
+
+    # REMOVE OLD TIME VARIABLES
+    df = df.drop(columns=time_vars2)
+
+    # SAVE THE OUTPUT AND PRINT LAST DESCRIPTIONS AND PLOTS
+    # print_description_and_info(df, file="extended_df_description.txt")
+    # multibar_plots(df, target_var, quantitative_vars2, [], nominal_vars2 + ordinal_vars2,
+    #                save_name="extended_df_multibar_plot.png")
+
+
+    # FINAL TESTS
+    chi_square_test(df, nominal_vars=nominal_vars2 + ordinal_vars2, target_var=target_var, output_file="extended_chi_squared_results.txt")
+    calculate_correlations(df, quantitative_vars2, file1="extended_correlations.txt")
+    print_non_param_homogeneity_tests(df, quantitative_vars2, target_var, os.path.join(ROOT, "extended_quantitative_tests.txt"))
+    classify_and_write(df, nominal_vars2, ordinal_vars2, quantitative_vars2, os.path.join(ROOT, 'extended_variables_classification.txt'))
+    df.to_csv(os.path.join(ROOT, "extended_df.csv"))
+
+
+    # FINAL VARIABLE SELECTION USING EDA (DISCARDING IRRELEVANT VARIABLES)
+    pvalue_treshold = 0.1 # Slightly more relaxed than the original 0.5
+    final_nominal_vars = []
+    for var in nominal_vars2:
+        # Create a contingency table
+        aux_df = df[[var, target_var]].dropna()
+        contingency_table = pd.crosstab(aux_df[var], aux_df[target_var])
+
+        # Perform the Chi-Square test
+        chi2, p, dof, expected = chi2_contingency(contingency_table)
+
+        # Determine significance
+        if p < pvalue_treshold:
+            final_nominal_vars.append(var)
+
+    final_ordinal_vars = []
+    manual_filter = [
+        # EXAMPLE OF MANUALLY DISCARDED FEATURES DISREGARDING TESTS
+        'admission_date_dayofweek',
+        'date_of_first_symptoms_dayofweek',
+        'admission_date_year',
+        'date_of_first_symptoms_year',
+        'admission_date_dayofmonth',
+        'date_of_first_symptoms_dayofmonth']
+
+    for var in ordinal_vars2:
+        if var in manual_filter:
+            continue
+        print(var)
+
+        # Create a contingency table
+        aux_df = df[[var, target_var]].dropna()
+        contingency_table = pd.crosstab(aux_df[var], aux_df[target_var])
+
+        # Perform the Chi-Square test
+        chi2, p, dof, expected = chi2_contingency(contingency_table)
+
+        # Determine significance
+        if p < pvalue_treshold:
+            final_ordinal_vars.append(var)
+
+    # They are not highly correlated and the quantitative variable significance tests show all <0.1
+    # Only fever_temperature is >0.05 (~0.097)
+    final_quantitative_vars = quantitative_vars2
+
+    classify_and_write(df, final_nominal_vars, final_ordinal_vars, final_quantitative_vars, os.path.join(ROOT, 'preliminary_selected_variables_classification.txt'))
+
+
 
 
 

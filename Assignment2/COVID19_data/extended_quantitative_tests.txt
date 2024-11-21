@@ -1,0 +1,28 @@
+Significance Tests for 'age':
+  Kolmogorov-Smirnov Test p-value: 2.435e-13
+  Wilcoxon Rank-Sum Test p-value: 6.510e-16
+--------------------------------------------------
+Significance Tests for 'fever_temperature':
+  Kolmogorov-Smirnov Test p-value: 9.853e-01
+  Wilcoxon Rank-Sum Test p-value: 9.073e-01
+--------------------------------------------------
+Significance Tests for 'oxygen_saturation':
+  Kolmogorov-Smirnov Test p-value: 8.107e-03
+  Wilcoxon Rank-Sum Test p-value: 2.903e-05
+--------------------------------------------------
+Significance Tests for 'date_of_first_symptoms_sin':
+  Kolmogorov-Smirnov Test p-value: 2.097e-225
+  Wilcoxon Rank-Sum Test p-value: 2.944e-118
+--------------------------------------------------
+Significance Tests for 'date_of_first_symptoms_cos':
+  Kolmogorov-Smirnov Test p-value: 1.937e-130
+  Wilcoxon Rank-Sum Test p-value: 9.545e-03
+--------------------------------------------------
+Significance Tests for 'admission_date_sin':
+  Kolmogorov-Smirnov Test p-value: 2.097e-225
+  Wilcoxon Rank-Sum Test p-value: 2.944e-118
+--------------------------------------------------
+Significance Tests for 'admission_date_cos':
+  Kolmogorov-Smirnov Test p-value: 1.937e-130
+  Wilcoxon Rank-Sum Test p-value: 9.545e-03
+--------------------------------------------------
