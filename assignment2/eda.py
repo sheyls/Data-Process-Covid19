@@ -5,7 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import chi2_contingency, ks_2samp, ranksums
-
+from sklearn.base import BaseEstimator, TransformerMixin
+import joblib
 from sklearn.preprocessing import RobustScaler
 
 ROOT = "./COVID19_data/"
@@ -13,6 +14,26 @@ ROOT = "./COVID19_data/"
 FILE_1 = "hospital1.xlsx"
 FILE_2 = "hospital2.xlsx"
 
+
+class NumericEncoderWithDefault(BaseEstimator, TransformerMixin):
+    def __init__(self, default=np.nan):
+        self.default_value = default
+
+    def fit(self, X, y=None):
+        # If no mapping is provided, create one from unique values in X
+        unique_values = X.unique()
+        self.mapping = {val: i for i, val in enumerate(unique_values)}
+        return self
+
+    def transform(self, X):
+        return X.map(lambda x: self.mapping.get(x, self.default_value))
+
+    def save(self, filepath):
+        joblib.dump(self, filepath)
+
+    @classmethod
+    def load(cls, filepath):
+        return joblib.load(filepath)
 
 def print_description_and_info(df1, df2=None, file='dataframes_summary.txt', root=ROOT):
     # Assuming df1 and df2 are pandas DataFrames
@@ -373,29 +394,24 @@ if __name__ == '__main__':
     merged_unique_values = list(set(list(unique_values1) + list(unique_values2)))
     merged_unique_values = [x for x in merged_unique_values if pd.notna(x)]
     merged_unique_values.sort()
-    country_mapping = {}
-    for i, country in enumerate(merged_unique_values):
-        country_mapping[country] = i
-    df1['country_of_residence'] = df1['country_of_residence'].map(country_mapping)
-    df2['country_of_residence'] = df2['country_of_residence'].map(country_mapping)
 
-    gender_mapping = {"K": 1, "E": 0}
-    df1["sex"] = df1["sex"].map(gender_mapping)
-    df2["sex"] = df2["sex"].map(gender_mapping)
+    country_encoder = NumericEncoderWithDefault()
+    country_encoder.fit(["K", "E"])
+    country_encoder.save(os.path.join(ROOT, "country_encoder.pkl"))
+
+    gender_encoder = NumericEncoderWithDefault()
+    gender_encoder.fit(merged_unique_values)
+    gender_encoder.save(os.path.join(ROOT, "gender_encoder.pkl"))
+
+    # Transform the 'country_of_residence' column in both dataframes
+    df1['country_of_residence'] = country_encoder.transform(df1['country_of_residence'])
+    df2['country_of_residence'] = country_encoder.transform(df2['country_of_residence'])
+    df2['sex'] = gender_encoder.transform(df2['sex'])
+    df2['sex'] = gender_encoder.transform(df2['sex'])
 
     pcr_mapping = {"positive": 1, "negative": 0}
     df1[target_var] = df1[target_var].map(pcr_mapping)
     df2[target_var] = df2[target_var].map(pcr_mapping)
-
-    # CHANGING THE TYPE IS ONLY VIABLE WITHOUT NULLS THERE
-    # for col in nominal_vars1:
-    #     if df1[col].dtype != 'object':  # Check if the column is not of type object
-    #         df1[col] = df1[col].fillna(-2).astype('int64')  # Convert to int64
-    # for col in nominal_vars2:
-    #     if df2[col].dtype != 'object':  # Check if the column is not of type object
-    #         df2[col] = df2[col].fillna(-2).astype('int64')  # Convert to int64
-    # df1 = df1.replace(-2, np.nan)
-    # df2 = df2.replace(-2, np.nan)
 
     # print_description_and_info(df1, df2, file="updated_dataframes_summary.txt") # Commented out because it is done
 
