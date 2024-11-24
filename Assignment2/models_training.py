@@ -171,25 +171,7 @@ def get_validation_df():
 
 
 if __name__ == '__main__':
-    # train_df = pd.read_csv(ROOT + DF_TRAIN)
+    train_df = pd.read_csv(ROOT + DF_TRAIN)
     MT = ModelTraining()
     MV = ModelValidation()
-    encoded_data = pd.read_csv('/Users/mariajosefranco/Desktop/EnerBit/repos/ML/encoded_enerbit_data.csv')
-    encoded_data = encoded_data.drop(
-        columns=[
-            "SERVICE_TYPE",
-            "COUNTRY",
-            "TOTAL_BILLED_AMOUNT_VALIDATION",
-            "DAYS_PAST_DUE",
-            "YEAR_PAYMENT_DATE",
-            "MONTH_PAYMENT_DATE",
-            "DAY_PAYMENT_DATE",
-        ]
-    )
-    encoded_data = encoded_data[:500]
-    X, y = MT.separating_target(encoded_data)
-    X_train, X_validation, y_train, y_validation = train_test_split(X, y, test_size=0.2, random_state=42)
-    train_results, best_model = MT.random_forest(X_train, y_train)
-    validation_results = MV.random_forest(X_train, y_train, X_validation, y_validation, best_model)
-    train_results
-    # validation_df = get_validation_df()
+    validation_df = get_validation_df()
