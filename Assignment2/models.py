@@ -203,3 +203,5 @@ def get_validation_df():
 if __name__ == '__main__':
     train_df = pd.read_csv(ROOT + DF_TRAIN)
     M = Models()
+
+    validation_df = get_validation_df()
