@@ -184,7 +184,7 @@ def powertransform(df, vars):
     q_transformers = {}
     for var in vars:
         # Instantiate PowerTransformer with Yeo-Johnson
-        print(df[var].describe())
+        # print(df[var].describe())
 
         transformer = Pipeline([('standardize', StandardScaler()), ('yeo', PowerTransformer())])
         transformer.fit(df[var].dropna().values.reshape(-1, 1))
@@ -193,7 +193,7 @@ def powertransform(df, vars):
         values_trans = transformer.transform(values.values.reshape(-1, 1))
         df.loc[mask, var] = values_trans
 
-        print(df[var].describe())
+        # print(df[var].describe())
 
         q_transformers[var] = transformer
 
