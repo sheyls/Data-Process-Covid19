@@ -44,6 +44,11 @@ from docutils.frontend import validate_encoding_and_error_handler
 from pandas.core.common import random_state
 from scipy.special import ellip_harm
 from sklearn.model_selection import train_test_split
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import OrdinalEncoder
 from imblearn.over_sampling import SMOTE
 import pandas as pd
 import os
@@ -199,28 +204,104 @@ def powertransform(df, vars):
     return q_transformers
 
 
-def check_missing_values(df):
+def impute_binary_columns(df, verbose=True):
     """
-    Check for missing values in the DataFrame and calculate the percentage of missing data for each column.
+    Impute missing values in binary columns using regression (Logistic Regression).
     
     Parameters:
-        df (pd.DataFrame): The DataFrame to check for missing values.
+        df (pd.DataFrame): The DataFrame containing binary columns with missing values.
+        verbose (bool): Whether to print a summary of missing data.
     
     Returns:
-        pd.DataFrame: A DataFrame containing counts and percentages of missing values for each column.
+        pd.DataFrame: The DataFrame with missing values imputed.
     """
-    # Check for missing values in each column
-    missing_values = df.isnull().sum()
-    
-    # Calculate the percentage of missing data for each column
-    missing_percentage = (missing_values / df.shape[0]) * 100
-    
-    missing_data = pd.DataFrame({'Missing Values': missing_values, 'Percentage': missing_percentage})
+    # Identify binary columns
+    binary_columns = [col for col in df.columns if df[col].dropna().isin([0, 1]).all()]
+    missing_data = df[binary_columns].isnull().sum()
 
-    # WE NEED TO DECIDE WHAT TO DO WITH THE MISSING DATA
-    # (All columns has < 0.something % missing data except for one that has 6 %)
+    # Display summary of missing data if verbose is True
+    if verbose:
+        print("Missing data summary (binary columns):")
+        print(missing_data)
+
+    # Skip if no binary columns have missing values
+    if missing_data.sum() == 0:
+        if verbose:
+            print("No missing values in binary columns.")
+        return df
+
+    # Display summary of missing data
+    print("Missing data summary:")
+    print(missing_data)
+
+    # Configure IterativeImputer with logistic regression
+    imputer = IterativeImputer(estimator=RandomForestClassifier(), 
+                               max_iter=10, 
+                               random_state=42)
+
+    # Apply imputation only to binary columns
+    df[binary_columns] = imputer.fit_transform(df[binary_columns])
+
+    # Round values to maintain binary nature
+    df[binary_columns] = df[binary_columns].round().astype(int)
+
+    with open('binary_imputer.pkl', 'wb') as f:
+        pickle.dump(imputer, f)
     
-    return missing_data
+    return df
+
+def impute_categorical_columns(df, categorical_columns, verbose=True):
+    """
+    Impute missing values in categorical columns using regression.
+    
+    Parameters:
+        df (pd.DataFrame): The DataFrame containing categorical columns with missing values.
+        categorical_columns (list): List of categorical column names to impute.
+        verbose (bool): Whether to print a summary of missing data.
+    
+    Returns:
+        pd.DataFrame: The DataFrame with missing values imputed.
+    """
+    # Check for missing data in specified categorical columns
+    missing_data = df[categorical_columns].isnull().sum()
+
+    # Display summary of missing data if verbose is True
+    if verbose:
+        print("Missing data summary (categorical columns):")
+        print(missing_data)
+
+    # Skip if no categorical columns have missing values
+    if missing_data.sum() == 0:
+        if verbose:
+            print("No missing values in categorical columns.")
+        return df
+
+    # Encode categorical columns to numeric using OrdinalEncoder
+    encoder = OrdinalEncoder()
+    df_encoded = df.copy()
+    df_encoded[categorical_columns] = encoder.fit_transform(df[categorical_columns].astype(str))
+
+    # Configure IterativeImputer with RandomForestClassifier for categorical data
+    imputer = IterativeImputer(estimator=RandomForestClassifier(), 
+                               max_iter=10, 
+                               random_state=42)
+    
+    # Fit and transform the data
+    df_imputed = imputer.fit_transform(df_encoded)
+
+    # Convert back to categorical values
+    df_imputed = pd.DataFrame(df_imputed, columns=df.columns)
+    df_imputed[categorical_columns] = encoder.inverse_transform(df_imputed[categorical_columns].round().astype(int))
+
+    # Save the encoder and imputer
+    with open('categorical_encoder.pkl', 'wb') as f:
+        pickle.dump(encoder, f)
+
+    with open('categorical_imputer.pkl', 'wb') as f:
+        pickle.dump(imputer, f)
+    
+    return df_imputed
+
 
 def remove_outliers(df, quantitative_transforms, quantitative_vars):
     """
@@ -303,6 +384,14 @@ if __name__ == "__main__":
 
     # Remove outliers
     remove_outliers(df_train, quantitative_transforms, quantitative_vars)
+
+    # Handle missing values
+    # Impute binary columns
+    df_train = impute_binary_columns(df_train)
+
+    # Impute categorical columns
+    categorical_columns = ['country_of_residence']
+    df_train = impute_categorical_columns(df_train, categorical_columns)
 
     # Std Scaler
     std_scalers = standardize(df_train, quantitative_vars)
