@@ -48,6 +48,7 @@ from imblearn.over_sampling import SMOTE
 import pandas as pd
 import os
 
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PowerTransformer, StandardScaler
 from spacy.cli import train
 from sqlalchemy.dialects.mssql.information_schema import columns
@@ -178,15 +179,21 @@ def powertransform(df, vars):
     q_transformers = {}
     for var in vars:
         # Instantiate PowerTransformer with Yeo-Johnson
-        yeo_johnson_transformer = PowerTransformer(method="yeo-johnson", standardize=True)
-        yeo_johnson_transformer.fit(df[var].dropna().values.reshape(-1, 1))
+        print(df[var].describe())
+
+        transformer = Pipeline([('standardize', StandardScaler()), ('yeo', PowerTransformer())])
+        transformer.fit(df[var].dropna().values.reshape(-1, 1))
         mask = ~df[var].isna()
         values = df.loc[mask, var]
-        df.loc[mask, var] = yeo_johnson_transformer.transform(df.loc[mask, var].values.reshape(-1, 1))
-        q_transformers[var] = yeo_johnson_transformer
+        values_trans = transformer.transform(values.values.reshape(-1, 1))
+        df.loc[mask, var] = values_trans
+
+        print(df[var].describe())
+
+        q_transformers[var] = transformer
 
     # Save the transformers to a pickle file. To use maybe in another file if we have to test the test dataframe
-    with open("quantitative_transformers.pkl", "wb") as f:
+    with open(os.path.join(ROOT, "quantitative_transformers.pkl"), "wb") as f:
         pickle.dump(q_transformers, f)
 
     return q_transformers
@@ -231,24 +238,27 @@ def remove_outliers(df, quantitative_transforms, quantitative_vars):
     hypoxemia_threshold = 88
     transformed_hypoxemia_threshold = quantitative_transforms["oxygen_saturation"].transform(
         np.array(hypoxemia_threshold).reshape(-1, 1)
-    )
+    )[0][0]
     df.loc[df["oxygen_saturation"] < transformed_hypoxemia_threshold, "oxygen_saturation"] = np.nan
 
     # Fever temperature outlier removal
     hypothermia_threshold = 35  # in Celsius
     transformed_hypothermia_threshold = quantitative_transforms["fever_temperature"].transform(
         np.array(hypothermia_threshold).reshape(-1, 1)
-    )
+    )[0][0]
     df.loc[df["fever_temperature"] < transformed_hypothermia_threshold, "fever_temperature"] = np.nan
 
     # Age outlier removal
     min_age, max_age = -1, 95
-    transformed_min_age = quantitative_transforms["age"].transform(np.array(min_age).reshape(-1, 1))
-    transformed_max_age = quantitative_transforms["age"].transform(np.array(max_age).reshape(-1, 1))
-    df.loc[(df["age"] <= transformed_min_age) | (df["age"] >= transformed_max_age), "age"] = np.nan
+    transformed_max_age = quantitative_transforms["age"].transform(np.array(max_age).reshape(-1, 1))[0][0]
+    if min_age >= 0:
+        transformed_min_age = quantitative_transforms["age"].transform(np.array(min_age).reshape(-1, 1))[0][0]
+        df.loc[(df["age"] <= transformed_min_age) | (df["age"] >= transformed_max_age), "age"] = np.nan
+    else:
+        df.loc[df["age"] >= transformed_max_age, "age"] = np.nan
 
     # Save boxplots and histograms
-    save_boxplots_and_histograms(df, quantitative_vars, ROOT, "extended_df_train_outliers.png")
+    save_boxplots_and_histograms(df, quantitative_vars, ROOT, "extended_df_train_boxplot.png")
     return df
 
 if __name__ == "__main__":
