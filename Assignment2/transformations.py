@@ -39,8 +39,6 @@ Implementar modelos:
 import pickle
 
 import numpy as np
-from caffe2.python.examples.imagenet_trainer import Train
-from docutils.frontend import validate_encoding_and_error_handler
 from pandas.core.common import random_state
 from scipy.special import ellip_harm
 from sklearn.model_selection import train_test_split
@@ -55,8 +53,11 @@ import os
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PowerTransformer, StandardScaler
-from spacy.cli import train
-from sqlalchemy.dialects.mssql.information_schema import columns
+# from spacy.cli import train
+# from sqlalchemy.dialects.mssql.information_schema import columns
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 from Assignment2.eda import multibar_plots, save_boxplots_and_histograms
 
@@ -187,7 +188,8 @@ def powertransform(df, vars):
         # print(df[var].describe())
 
         transformer = Pipeline([('standardize', StandardScaler()), ('yeo', PowerTransformer())])
-        transformer.fit(df[var].dropna().values.reshape(-1, 1))
+        values_without_nan = df[var].dropna().values.reshape(-1, 1)
+        transformer.fit(values_without_nan)
         mask = ~df[var].isna()
         values = df.loc[mask, var]
         values_trans = transformer.transform(values.values.reshape(-1, 1))
@@ -327,12 +329,12 @@ def remove_outliers(df, quantitative_transforms, quantitative_vars):
     transformed_hypothermia_threshold = quantitative_transforms["fever_temperature"].transform(
         np.array(hypothermia_threshold).reshape(-1, 1)
     )[0][0]
-    df.loc[df["fever_temperature"] < transformed_hypothermia_threshold, "fever_temperature"] = np.nan
+    df.loc[df["fever_temperature"] <= transformed_hypothermia_threshold, "fever_temperature"] = np.nan
 
     # Age outlier removal
     min_age, max_age = -1, 95
     transformed_max_age = quantitative_transforms["age"].transform(np.array(max_age).reshape(-1, 1))[0][0]
-    if min_age >= 0:
+    if min_age >= -1:
         transformed_min_age = quantitative_transforms["age"].transform(np.array(min_age).reshape(-1, 1))[0][0]
         df.loc[(df["age"] <= transformed_min_age) | (df["age"] >= transformed_max_age), "age"] = np.nan
     else:
@@ -390,8 +392,9 @@ if __name__ == "__main__":
     df_train = impute_binary_columns(df_train)
 
     # Impute categorical columns
-    categorical_columns = ['country_of_residence']
-    df_train = impute_categorical_columns(df_train, categorical_columns)
+    # categorical_columns = ['country_of_residence']
+    # df_train = impute_categorical_columns(df_train, categorical_columns)
+    df_train = df_train.dropna(subset=['country_of_residence'])
 
     # Std Scaler
     std_scalers = standardize(df_train, quantitative_vars)
@@ -401,12 +404,6 @@ if __name__ == "__main__":
 
     # Apply One-hot encoding to country_of_residence column
     df_train = one_hot_encode_column(df_train, "country_of_residence")
-
-
-
-
-
-
 
 
     df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed.csv"), index=False)

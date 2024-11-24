@@ -18,26 +18,26 @@ class Models():
     def decision_tree(self, X_train, y_train, X_validation, y_validation):
         criterion = ['gini', 'entropy']
         max_depth = [5, 10, 15]
-        results = pd.DataFrame()
-        scores_dict = {'max_depth': [], 'criterion': [],
-                       'accuracy': [], 'precision': [], 'recall': [], 'f1': [],
-                       'accuracy_validation': [], 'precision_validation': [], 'recall_validation': [], 'f1_validation': []}
+        train_results = pd.DataFrame()
+        train_scores_dict = {'max_depth': [], 'criterion': [],
+                       'accuracy': [], 'precision': [], 'recall': [], 'f1': []}
         for depth in max_depth:
             for criteria in criterion:
                 model = DecisionTreeClassifier(criterion=criteria, max_depth=depth, random_state=42)
                 for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                     scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                    scores_dict[scoring] = np.mean(scores)
-                model.fit(X_train, y_train)
-                y_pred = model.predict(X_validation)
-                scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
-                scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
-                scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
-                scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
-                scores_dict['max_depth'] = depth
-                scores_dict['criterion'] = criteria
-                results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
-        return results
+                    train_scores_dict[scoring] = np.mean(scores)
+                train_scores_dict['max_depth'] = depth
+                train_scores_dict['criterion'] = criteria
+        best_model = DecisionTreeClassifier(criterion=best_criteria, max_depth=best_depth, random_state=42)
+        best_model.fit(X_train, y_train)
+        y_pred = best_model.predict(X_validation)
+        train_scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
+        train_scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
+        train_scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
+        train_scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
+        train_results = pd.concat([train_results, pd.DataFrame([train_scores_dict])], ignore_index=True)
+        return train_results
 
     def rule_induction(self, X_train, y_train, X_validation, y_validation):
         K = [1, 2, 3, 4]
@@ -50,14 +50,15 @@ class Models():
             for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                 scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
                 scores_dict[scoring] = np.mean(scores)
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_validation)
-            scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
-            scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
-            scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
-            scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
             scores_dict['K'] = k
-            results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
+        best_model = lw.RIPPER(k=best_k)
+        best_model.fit(X_train, y_train)
+        y_pred = best_model.predict(X_validation)
+        scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
+        scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
+        scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
+        scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
+        results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         return results
 
     def logistic_regression(self, X_train, y_train, X_validation, y_validation):
@@ -71,14 +72,15 @@ class Models():
             for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                 scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
                 scores_dict[scoring] = np.mean(scores)
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_validation)
-            scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
-            scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
-            scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
-            scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
             scores_dict['penalty'] = penalty
-            results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
+        best_model = LogisticRegression(penalty=best_penalty, max_iter=1000, random_state=42)
+        best_model.fit(X_train, y_train)
+        y_pred = best_model.predict(X_validation)
+        scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
+        scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
+        scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
+        scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
+        results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         return results
 
     def svm(self, X_train, y_train, X_validation, y_validation):
@@ -92,14 +94,15 @@ class Models():
             for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                 scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
                 scores_dict[scoring] = np.mean(scores)
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_validation)
-            scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
-            scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
-            scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
-            scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
             scores_dict['kernel'] = kernel
-            results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
+        best_model = SVC(kernel=best_kernel)
+        best_model.fit(X_train, y_train)
+        y_pred = best_model.predict(X_validation)
+        scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
+        scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
+        scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
+        scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
+        results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         return results
 
     def naive_bayes(self, X_train, y_train, X_validation, y_validation):
@@ -110,8 +113,9 @@ class Models():
         for scoring in ['accuracy', 'precision', 'recall', 'f1']:
             scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
             scores_dict[scoring] = np.mean(scores)
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_validation)
+        best_model = GaussianNB()
+        best_model.fit(X_train, y_train)
+        y_pred = best_model.predict(X_validation)
         scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
         scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
         scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
@@ -128,19 +132,20 @@ class Models():
                        'accuracy_validation': [], 'precision_validation': [], 'recall_validation': [], 'f1_validation': []}
         for depth in max_depth:
             for estimator in n_estimators:
-                model = RandomForestClassifier(n_estimators=estimator, max_depth=depth, random_state=42,)
+                model = RandomForestClassifier(n_estimators=estimator, max_depth=depth, random_state=42)
                 for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                     scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
                     scores_dict[scoring] = np.mean(scores)
-                model.fit(X_train, y_train)
-                y_pred = model.predict(X_validation)
-                scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
-                scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
-                scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
-                scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
                 scores_dict['max_depth'] = depth
                 scores_dict['n_estimators'] = estimator
-                results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
+        best_model = RandomForestClassifier(n_estimators=best_estimator, max_depth=best_depth, random_state=42)
+        best_model.fit(X_train, y_train)
+        y_pred = best_model.predict(X_validation)
+        scores_dict['accuracy_validation'] = accuracy_score(y_validation, y_pred)
+        scores_dict['precision_validation'] = precision_score(y_validation, y_pred, average='weighted')
+        scores_dict['recall_validation'] = recall_score(y_validation, y_pred, average='weighted')
+        scores_dict['f1_validation'] = f1_score(y_validation, y_pred, average='weighted')
+        results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         return results
 
     def separating_target(self, data):
@@ -199,6 +204,7 @@ def get_validation_df():
 
 
     return validation_df
+
 
 if __name__ == '__main__':
     train_df = pd.read_csv(ROOT + DF_TRAIN)
