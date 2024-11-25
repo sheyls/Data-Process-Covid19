@@ -119,6 +119,7 @@ class ModelTraining():
                 results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
         best_model = results.loc[best_f1_score]
+        best_model['Evaluation'] = 'Train'
         return results, best_model
 
     def rule_induction(self, X_train, y_train):
@@ -135,6 +136,7 @@ class ModelTraining():
             results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
         best_model = results.loc[best_f1_score]
+        best_model['Evaluation'] = 'Train'
         return results, best_model
 
     def logistic_regression(self, X_train, y_train):
@@ -151,6 +153,7 @@ class ModelTraining():
             results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
         best_model = results.loc[best_f1_score]
+        best_model['Evaluation'] = 'Train'
         return results, best_model
 
     def svm(self, X_train, y_train):
@@ -167,6 +170,7 @@ class ModelTraining():
             results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
         best_model = results.loc[best_f1_score]
+        best_model['Evaluation'] = 'Train'
         return results, best_model
 
     def naive_bayes(self, X_train, y_train):
@@ -179,6 +183,7 @@ class ModelTraining():
         results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
         best_model = results.loc[best_f1_score]
+        best_model['Evaluation'] = 'Train'
         return results, best_model
 
     def random_forest(self, X_train, y_train):
@@ -198,12 +203,8 @@ class ModelTraining():
                 results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
         best_model = results.loc[best_f1_score]
+        best_model['Evaluation'] = 'Train'
         return results, best_model
-
-    def separating_target(self, data):
-        X = data.drop(columns=['PAID_ON_TIME'])
-        y = data['PAID_ON_TIME']
-        return X, y
 
 
 def get_validation_df():
@@ -287,13 +288,36 @@ if __name__ == '__main__':
     X_train = train_df[quantitative_vars + nominal_vars + ordinal_vars]
     y_train = train_df[target_var]
 
+    # Training
     MT = ModelTraining()
-    best_svm, results_svm = MT.svm(X_train, y_train)
-    best_nb, results_nb = MT.naive_bayes(X_train, y_train)
-    best_tree, results_tree = MT.decision_tree(X_train, y_train)
-    best_rf, results_rf = MT.random_forest(X_train, y_train)
-    best_log, results_log = MT.logistic_regression(X_train, y_train)
-    best_rule, results_rule = MT.rule_induction(X_train, y_train)
+    train_results_svm, best_svm = MT.svm(X_train, y_train)
+    train_results_nb, best_nb = MT.naive_bayes(X_train, y_train)
+    train_results_tree, best_tree = MT.decision_tree(X_train, y_train)
+    train_results_rf, best_rf = MT.random_forest(X_train, y_train)
+    train_results_log, best_log = MT.logistic_regression(X_train, y_train)
+    train_results_rule, best_rule = MT.rule_induction(X_train, y_train)
+
+    # Validating
+    MV = ModelValidation()
+    validation_df = get_validation_df()
+
+    X_val = validation_df[quantitative_vars + nominal_vars + ordinal_vars]
+    y_val = validation_df[target_var]
+
+    val_results_svm = MV.svm(X_train, y_train, X_val, y_val, best_svm)
+    val_results_nb = MV.naive_bayes(X_train, y_train, X_val, y_val, best_nb)
+    val_results_tree = MV.decision_tree(X_train, y_train, X_val, y_val, best_tree)
+    val_results_rf = MV.random_forest(X_train, y_train, X_val, y_val, best_rf)
+    val_results_log = MV.logistic_regression(X_train, y_train, X_val, y_val, best_log)
+    val_results_rule = MV.rule_induction(X_train, y_train, X_val, y_val, best_rule)
+
+    # Appending training metrics with validation metrics
+    results_svm = pd.concat([best_svm, val_results_svm], axis=1)
+    results_nb = pd.concat([best_nb, val_results_nb], axis=1)
+    results_tree = pd.concat([best_tree, val_results_tree], axis=1)
+    results_rf = pd.concat([best_rf, val_results_rf], axis=1)
+    results_log = pd.concat([best_log, val_results_log], axis=1)
+    results_rule = pd.concat([best_rule, val_results_rule], axis=1)
 
     # Saving to files
     filepaths = {
@@ -323,40 +347,6 @@ if __name__ == '__main__':
         'best_log': best_log,
         'results_log': results_log,
         'best_rule': best_rule,
-        'results_rule': results_rule
-    }
-
-    for name, df in dfs.items():
-        df.to_csv(filepaths[name], index=False)
-
-    MV = ModelValidation()
-    validation_df = get_validation_df()
-
-    X_val = validation_df[quantitative_vars + nominal_vars + ordinal_vars]
-    y_val = validation_df[target_var]
-
-    results_svm = MV.svm(X_train, y_train, X_val, y_val, best_svm)
-    results_nb = MV.naive_bayes(X_train, y_train, X_val, y_val, best_nb)
-    results_tree = MV.decision_tree(X_train, y_train, X_val, y_val, best_tree)
-    results_rf = MV.random_forest(X_train, y_train, X_val, y_val, best_rf)
-    results_log = MV.logistic_regression(X_train, y_train, X_val, y_val, best_log)
-    results_rule = MV.rule_induction(X_train, y_train, X_val, y_val, best_rule)
-
-    filepaths = {
-        'results_svm': os.path.join(ROOT + "outputs/results_svm_val.csv"),
-        'results_nb': os.path.join(ROOT + "outputs/results_nb_val.csv"),
-        'results_tree': os.path.join(ROOT + "outputs/results_tree_val.csv"),
-        'results_rf': os.path.join(ROOT + "outputs/results_rf_val.csv"),
-        'results_log': os.path.join(ROOT + "outputs/results_log_val.csv"),
-        'results_rule': os.path.join(ROOT + "outputs/results_rule_val.csv")
-    }
-
-    dfs = {
-        'results_svm': results_svm,
-        'results_nb': results_nb,
-        'results_tree': results_tree,
-        'results_rf': results_rf,
-        'results_log': results_log,
         'results_rule': results_rule
     }
 
