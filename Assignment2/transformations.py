@@ -48,7 +48,8 @@ from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.impute import SimpleImputer
-from imblearn.over_sampling import SMOTE
+from imblearn.over_sampling import SMOTE 
+from imblearn.under_sampling import TomekLinks
 import pandas as pd
 import os
 
@@ -62,7 +63,7 @@ import seaborn as sns
 
 from Assignment2.eda import multibar_plots, save_boxplots_and_histograms
 
-ROOT = "./COVID19_data/"
+ROOT = "Assignment2/COVID19_data/"
 DS_NAME = "extended_df.csv"
 
 def balance_classes(df, target_column, output_file_name="class_balance_results.txt"):
@@ -76,6 +77,10 @@ def balance_classes(df, target_column, output_file_name="class_balance_results.t
     """
     X = df.drop(columns=[target_column])
     y = df[target_column]
+
+    under_sampler = TomekLinks(sampling_strategy='majority', n_jobs=-1)
+    
+    X, y = under_sampler.fit_resample(X, y)
     
     balancer = SMOTE(random_state=15)
 
@@ -252,8 +257,8 @@ def impute_binary_columns(df, verbose=True):
     df[binary_columns_with_nans] = df[binary_columns_with_nans].round().astype(int)
 
     # Save the trained imputer for future use
-    with open('COVID19_data/binary_imputer.pkl', 'wb') as f:
-        pickle.dump(imputer, f)
+    #with open('COVID19_data/binary_imputer.pkl', 'wb') as f:
+    #    pickle.dump(imputer, f)
     
     if verbose:
         print("Imputation completed. Binary columns updated.")
@@ -431,6 +436,14 @@ if __name__ == "__main__":
         "admission_date_sin", "admission_date_cos"
     ]
 
+    # print all the differents values in the country_of_residence column
+    print(df["country_of_residence"].value_counts())
+
+    # Replace 95.0 with 1, and all other values with 0
+    df["country_of_residence"] = df["country_of_residence"].apply(lambda x: 1 if x == 95.0 else 0)
+
+    print(df["country_of_residence"].value_counts())
+
     target_var = "PCR_result"
 
     # Separate into train and test. Here, we remove rows without the target variable because they are useless and crash it
@@ -440,10 +453,10 @@ if __name__ == "__main__":
     # Apply transformation to quantitative_vars to achieve normal-ish distributions
     #quantitative_transforms = powertransform(df_train, quantitative_vars)
     # Plot to check that it is a'ight
-    multibar_plots(df_train, target_var, quantitative_vars, [], [], save_name="quantitative_vars_yeo_johnson.png")  # Commented out because it is done
+    #multibar_plots(df_train, target_var, quantitative_vars, [], [], save_name="quantitative_vars_yeo_johnson.png")  # Commented out because it is done
 
     # Remove outliers
-    remove_outliers(df_train, quantitative_vars)
+    #remove_outliers(df_train, quantitative_vars)
 
     # Handle missing values
     # Impute binary columns
