@@ -1,7 +1,7 @@
 import os
 import pickle
 import pandas as pd
-from sklearn.model_selection import cross_val_score, StratifiedKFold
+from sklearn.model_selection import cross_val_score, StratifiedKFold, cross_validate
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -11,6 +11,7 @@ import numpy as np
 import wittgenstein as lw
 from models_validation import ModelValidation
 from sklearn.model_selection import train_test_split
+from skopt.space import Real, Categorical, Integer
 
 
 
@@ -42,7 +43,7 @@ def nested_bayes_search(X, y, model, search_space):
 
         # Evaluate on the outer test set
         best_model = bayes_search.best_estimator_
-        test_score = cross_val_score(best_model, X_test, y_test, cv=5, scoring="f1").mean()
+        test_score = cross_validate(best_model, X_test, y_test, cv=5, scoring=["f1","auc",'accuracy', 'precision', 'recall']).mean()
         outer_scores.append(test_score)
 
     # Compile results
