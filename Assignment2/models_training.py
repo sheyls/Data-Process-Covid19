@@ -287,9 +287,6 @@ if __name__ == '__main__':
     X_train = train_df[quantitative_vars + nominal_vars + ordinal_vars]
     y_train = train_df[target_var]
 
-    X_train = X_train[:500]
-    y_train = y_train[:500]
-
     # Training
     MT = ModelTraining()
     train_results_svm, best_svm = MT.svm(X_train, y_train)
