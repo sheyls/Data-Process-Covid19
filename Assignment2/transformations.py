@@ -257,8 +257,8 @@ def impute_binary_columns(df, verbose=True):
     df[binary_columns_with_nans] = df[binary_columns_with_nans].round().astype(int)
 
     # Save the trained imputer for future use
-    with open('COVID19_data/binary_imputer.pkl', 'wb') as f:
-        pickle.dump(imputer, f)
+    #with open('COVID19_data/binary_imputer.pkl', 'wb') as f:
+    #    pickle.dump(imputer, f)
     
     if verbose:
         print("Imputation completed. Binary columns updated.")
@@ -436,6 +436,14 @@ if __name__ == "__main__":
         "admission_date_sin", "admission_date_cos"
     ]
 
+    # print all the differents values in the country_of_residence column
+    print(df["country_of_residence"].value_counts())
+
+    # Replace 95.0 with 1, and all other values with 0
+    df["country_of_residence"] = df["country_of_residence"].apply(lambda x: 1 if x == 95.0 else 0)
+
+    print(df["country_of_residence"].value_counts())
+
     target_var = "PCR_result"
 
     # Separate into train and test. Here, we remove rows without the target variable because they are useless and crash it
@@ -445,10 +453,10 @@ if __name__ == "__main__":
     # Apply transformation to quantitative_vars to achieve normal-ish distributions
     #quantitative_transforms = powertransform(df_train, quantitative_vars)
     # Plot to check that it is a'ight
-    multibar_plots(df_train, target_var, quantitative_vars, [], [], save_name="quantitative_vars_yeo_johnson.png")  # Commented out because it is done
+    #multibar_plots(df_train, target_var, quantitative_vars, [], [], save_name="quantitative_vars_yeo_johnson.png")  # Commented out because it is done
 
     # Remove outliers
-    remove_outliers(df_train, quantitative_vars)
+    #remove_outliers(df_train, quantitative_vars)
 
     # Handle missing values
     # Impute binary columns
