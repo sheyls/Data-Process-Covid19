@@ -48,7 +48,8 @@ from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.impute import SimpleImputer
-from imblearn.over_sampling import SMOTE
+from imblearn.over_sampling import SMOTE 
+from imblearn.under_sampling import TomekLinks
 import pandas as pd
 import os
 
@@ -62,7 +63,7 @@ import seaborn as sns
 
 from Assignment2.eda import multibar_plots, save_boxplots_and_histograms
 
-ROOT = "./COVID19_data/"
+ROOT = "Assignment2/COVID19_data/"
 DS_NAME = "extended_df.csv"
 
 def balance_classes(df, target_column, output_file_name="class_balance_results.txt"):
@@ -76,6 +77,10 @@ def balance_classes(df, target_column, output_file_name="class_balance_results.t
     """
     X = df.drop(columns=[target_column])
     y = df[target_column]
+
+    under_sampler = TomekLinks(sampling_strategy='majority', n_jobs=-1)
+    
+    X, y = under_sampler.fit_resample(X, y)
     
     balancer = SMOTE(random_state=15)
 
