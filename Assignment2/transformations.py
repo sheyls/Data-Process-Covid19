@@ -163,7 +163,7 @@ def standardize(df, vars):
         scalers[var] = scaler
 
     # Save the scalers to a pickle file for later use
-    with open("scalers.pkl", "wb") as f:
+    with open("COVID19_data/scalers.pkl", "wb") as f:
         pickle.dump(scalers, f)
 
     return scalers
@@ -252,7 +252,7 @@ def impute_binary_columns(df, verbose=True):
     df[binary_columns_with_nans] = df[binary_columns_with_nans].round().astype(int)
 
     # Save the trained imputer for future use
-    with open('binary_imputer.pkl', 'wb') as f:
+    with open('COVID19_data/binary_imputer.pkl', 'wb') as f:
         pickle.dump(imputer, f)
     
     if verbose:
@@ -501,8 +501,8 @@ if __name__ == "__main__":
     df_train = one_hot_encode_column(df_train, "country_of_residence")
 
     # Std Scaler
-    std_scalers = standardize(df_train, quantitative_vars+ordinal_vars)
+    # std_scalers = standardize(df_train, quantitative_vars+ordinal_vars)
 
     df_train.drop('Unnamed: 0', axis=1, inplace=True)
-    #df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed.csv"), index=False)
-    df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed_standard.csv"), index=False)
+    df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed.csv"), index=False)
+    # df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed_standard.csv"), index=False)

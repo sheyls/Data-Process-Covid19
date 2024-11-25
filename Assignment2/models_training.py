@@ -27,7 +27,7 @@ class ModelTraining():
                 model = DecisionTreeClassifier(criterion=criteria, max_depth=depth, random_state=42)
                 for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                     scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                    scores_dict[scoring] = np.mean(scores)
+                    scores_dict[scoring] = np.mean(scores), np.std(scores)
                 scores_dict['max_depth'] = depth
                 scores_dict['criterion'] = criteria
                 results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
@@ -44,7 +44,7 @@ class ModelTraining():
             model = lw.RIPPER(k=k)
             for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                 scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                scores_dict[scoring] = np.mean(scores)
+                scores_dict[scoring] = np.mean(scores), np.std(scores)
             scores_dict['K'] = k
             results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
@@ -60,7 +60,7 @@ class ModelTraining():
             model = LogisticRegression(penalty=penalty, max_iter=1000, random_state=42)
             for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                 scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                scores_dict[scoring] = np.mean(scores)
+                scores_dict[scoring] = np.mean(scores), np.std(scores)
             scores_dict['penalty'] = penalty
             results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
@@ -76,7 +76,7 @@ class ModelTraining():
             model = SVC(kernel=kernel)
             for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                 scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                scores_dict[scoring] = np.mean(scores)
+                scores_dict[scoring] = np.mean(scores), np.std(scores)
             scores_dict['kernel'] = kernel
             results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
@@ -89,7 +89,7 @@ class ModelTraining():
         model = GaussianNB()
         for scoring in ['accuracy', 'precision', 'recall', 'f1']:
             scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-            scores_dict[scoring] = np.mean(scores)
+            scores_dict[scoring] = np.mean(scores), np.std(scores)
         results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
         best_f1_score = results['f1'].idxmax()
         best_model = results.loc[best_f1_score]
@@ -106,7 +106,7 @@ class ModelTraining():
                 model = RandomForestClassifier(n_estimators=estimator, max_depth=depth, random_state=42)
                 for scoring in ['accuracy', 'precision', 'recall', 'f1']:
                     scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                    scores_dict[scoring] = np.mean(scores)
+                    scores_dict[scoring] = np.mean(scores), np.std(scores)
                 scores_dict['max_depth'] = depth
                 scores_dict['n_estimators'] = estimator
                 results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
@@ -118,11 +118,6 @@ class ModelTraining():
         X = data.drop(columns=['PAID_ON_TIME'])
         y = data['PAID_ON_TIME']
         return X, y
-
-ROOT = "./COVID19_data/"
-DF_TRAIN = "extended_df_train_preprocessed.csv"
-DF_VALIDATION = "extended_df_validation.csv"
-TRANSFORMERS_FILE = "quantitative_transformers.pkl"
 
 
 def get_validation_df():
@@ -154,7 +149,7 @@ def get_validation_df():
         )
 
     # Load the saved standard scalers
-    with open("scalers.pkl", "rb") as f:
+    with open("COVID19_data/scalers.pkl", "rb") as f:
         std_scalers = pickle.load(f)
 
     # Apply the scalers to the corresponding columns
@@ -169,6 +164,12 @@ def get_validation_df():
 
 
     return validation_df
+
+
+ROOT = "./COVID19_data/"
+DF_TRAIN = "extended_df_train_preprocessed_standard.csv"
+DF_VALIDATION = "extended_df_validation.csv"
+TRANSFORMERS_FILE = "quantitative_transformers.pkl"
 
 
 if __name__ == '__main__':
