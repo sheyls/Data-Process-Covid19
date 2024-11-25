@@ -47,6 +47,7 @@ from sklearn.impute import IterativeImputer
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
+from sklearn.impute import SimpleImputer
 from imblearn.over_sampling import SMOTE
 import pandas as pd
 import os
@@ -208,7 +209,7 @@ def powertransform(df, vars):
 
 def impute_binary_columns(df, verbose=True):
     """
-    Impute missing values in binary columns using regression (Logistic Regression).
+    Impute missing values in binary columns with NaNs using Iterative Imputer (Logistic Regression).
     
     Parameters:
         df (pd.DataFrame): The DataFrame containing binary columns with missing values.
@@ -219,93 +220,158 @@ def impute_binary_columns(df, verbose=True):
     """
     # Identify binary columns
     binary_columns = [col for col in df.columns if df[col].dropna().isin([0, 1]).all()]
-    missing_data = df[binary_columns].isnull().sum()
-
-    # Display summary of missing data if verbose is True
+    
+    # Filter only binary columns with NaNs
+    binary_columns_with_nans = [col for col in binary_columns if df[col].isnull().any()]
+    
     if verbose:
-        print("Missing data summary (binary columns):")
-        print(missing_data)
-
+        print("Binary columns identified:", binary_columns)
+        print("Binary columns with missing values:", binary_columns_with_nans)
+    
     # Skip if no binary columns have missing values
-    if missing_data.sum() == 0:
+    if not binary_columns_with_nans:
         if verbose:
-            print("No missing values in binary columns.")
+            print("No binary columns with missing values found.")
         return df
 
-    # Display summary of missing data
-    print("Missing data summary:")
-    print(missing_data)
+    # Display missing data summary
+    missing_data = df[binary_columns_with_nans].isnull().sum()
+    if verbose:
+        print("Missing data summary (binary columns with NaNs):")
+        print(missing_data)
 
-    # Configure IterativeImputer with logistic regression
+    # Configure IterativeImputer with a RandomForestClassifier
     imputer = IterativeImputer(estimator=RandomForestClassifier(), 
                                max_iter=10, 
                                random_state=42)
 
-    # Apply imputation only to binary columns
-    df[binary_columns] = imputer.fit_transform(df[binary_columns])
+    # Apply imputation only to selected binary columns
+    df[binary_columns_with_nans] = imputer.fit_transform(df[binary_columns_with_nans])
 
     # Round values to maintain binary nature
-    df[binary_columns] = df[binary_columns].round().astype(int)
+    df[binary_columns_with_nans] = df[binary_columns_with_nans].round().astype(int)
 
+    # Save the trained imputer for future use
     with open('binary_imputer.pkl', 'wb') as f:
         pickle.dump(imputer, f)
     
+    if verbose:
+        print("Imputation completed. Binary columns updated.")
+    
     return df
 
-def impute_categorical_columns(df, categorical_columns, verbose=True):
+
+def impute_numeric_columns_with_regression(df, numerical_columns, constraints=None):
     """
-    Impute missing values in categorical columns using regression.
+    Impute missing values in numerical columns using regression, ensuring values are within defined constraints.
     
     Parameters:
-        df (pd.DataFrame): The DataFrame containing categorical columns with missing values.
-        categorical_columns (list): List of categorical column names to impute.
-        verbose (bool): Whether to print a summary of missing data.
+        df (pd.DataFrame): DataFrame containing numerical columns with missing values.
+        numerical_columns (list): List of numerical column names to impute.
+        constraints (dict): Optional. A dictionary defining min and max values for each column.
+                            Example: {'oxygen_saturation': (50, 100), 'fever_temperature': (35, 42)}
     
     Returns:
-        pd.DataFrame: The DataFrame with missing values imputed.
+        pd.DataFrame: DataFrame with missing values imputed.
     """
-    # Check for missing data in specified categorical columns
-    missing_data = df[categorical_columns].isnull().sum()
+    if constraints is None:
+        constraints = {}
 
-    # Display summary of missing data if verbose is True
-    if verbose:
-        print("Missing data summary (categorical columns):")
-        print(missing_data)
-
-    # Skip if no categorical columns have missing values
-    if missing_data.sum() == 0:
-        if verbose:
-            print("No missing values in categorical columns.")
-        return df
-
-    # Encode categorical columns to numeric using OrdinalEncoder
-    encoder = OrdinalEncoder()
-    df_encoded = df.copy()
-    df_encoded[categorical_columns] = encoder.fit_transform(df[categorical_columns].astype(str))
-
-    # Configure IterativeImputer with RandomForestClassifier for categorical data
-    imputer = IterativeImputer(estimator=RandomForestClassifier(), 
-                               max_iter=10, 
-                               random_state=42)
+    for col in numerical_columns:
+        print(f"\nProcessing column: {col}")
+        
+        # Create mask for missing values
+        missing_mask = df[col].isnull()
+        if missing_mask.sum() > 0:
+            non_null = df[~missing_mask]  # Rows where col is not null
+            null = df[missing_mask]      # Rows where col is null
+            
+            # Ensure there are enough rows to train the regression model
+            if len(non_null) > 10 and len(non_null.columns) > 1:
+                X_train = non_null.drop(columns=[col])
+                y_train = non_null[col]
+                
+                # Impute missing values in X_train (predictors)
+                imputer = SimpleImputer(strategy="mean")
+                X_train = imputer.fit_transform(X_train)
+                
+                # Train regression model
+                reg = LinearRegression()
+                reg.fit(X_train, y_train)
+                
+                # Prepare predictors for rows with missing values
+                X_predict = null.drop(columns=[col])
+                X_predict = imputer.transform(X_predict)
+                
+                # Predict and constrain values
+                predicted = reg.predict(X_predict)
+                
+                # Apply constraints if defined
+                if col in constraints:
+                    min_val, max_val = constraints[col]
+                    predicted = np.clip(predicted, min_val, max_val)
+                
+                # Fill missing values
+                df.loc[missing_mask, col] = predicted
+                print(f"Imputed missing values in {col} using regression.")
+            else:
+                print(f"Not enough data to impute {col} using regression. Skipping...")
+        else:
+            print(f"No missing values in {col}.")
     
-    # Fit and transform the data
-    df_imputed = imputer.fit_transform(df_encoded)
+    return df
 
-    # Convert back to categorical values
-    df_imputed = pd.DataFrame(df_imputed, columns=df.columns)
-    df_imputed[categorical_columns] = encoder.inverse_transform(df_imputed[categorical_columns].round().astype(int))
 
-    # Save the encoder and imputer
-    with open('categorical_encoder.pkl', 'wb') as f:
-        pickle.dump(encoder, f)
-
-    with open('categorical_imputer.pkl', 'wb') as f:
-        pickle.dump(imputer, f)
+def impute_dates_by_order(df, date_prefix):
+    """
+    Impute missing values in date-related columns based on chronological order 
+    and replace the original datetime column with numeric (timestamp) values.
     
-    return df_imputed
+    Parameters:
+        df (pd.DataFrame): DataFrame containing date-related columns.
+        date_prefix (str): Prefix of the date columns (e.g., 'date_of_first_symptoms' or 'admission_date').
+    
+    Returns:
+        pd.DataFrame: DataFrame with missing date columns imputed and recalculated.
+    """
+    # Define columns
+    year_col = f"{date_prefix}_year"
+    month_col = f"{date_prefix}_month"
+    day_col = f"{date_prefix}_dayofmonth"
+    dayofyear_col = f"{date_prefix}_dayofyear"
+    sin_col = f"{date_prefix}_sin"
+    cos_col = f"{date_prefix}_cos"
+    date_col = f"{date_prefix}_date"
+
+    # Interpolate missing values in base columns (year, month, day)
+    for col in [year_col, month_col, day_col]:
+        if df[col].isnull().any():
+            df[col] = df[col].interpolate(method='linear')
+
+    # Reconstruct full dates
+    df[date_col] = pd.to_datetime(
+        dict(year=df[year_col], month=df[month_col], day=df[day_col]),
+        errors='coerce'
+    )
+
+    # Interpolate the full date if necessary
+    if df[date_col].isnull().any():
+        df[date_col] = df[date_col].interpolate(method='time')
+
+    # Replace datetime column with timestamp
+    df[date_col] = df[date_col].apply(
+        lambda x: x.timestamp() if pd.notnull(x) else np.nan
+    )
+
+    # Recalculate derived columns
+    df[dayofyear_col] = pd.to_datetime(df[date_col], unit='s').dt.dayofyear
+    df[sin_col] = np.sin(2 * np.pi * df[dayofyear_col] / 365.25)
+    df[cos_col] = np.cos(2 * np.pi * df[dayofyear_col] / 365.25)
+
+    return df
 
 
-def remove_outliers(df, quantitative_transforms, quantitative_vars):
+def remove_outliers(df, quantitative_vars):
     """
     Removes outliers from the given dataframe using domain-specific thresholds
     for oxygen saturation, fever temperature, and age. Saves boxplots and histograms.
@@ -319,26 +385,18 @@ def remove_outliers(df, quantitative_transforms, quantitative_vars):
     """
     # Oxygen saturation outlier removal
     hypoxemia_threshold = 88
-    transformed_hypoxemia_threshold = quantitative_transforms["oxygen_saturation"].transform(
-        np.array(hypoxemia_threshold).reshape(-1, 1)
-    )[0][0]
-    df.loc[df["oxygen_saturation"] < transformed_hypoxemia_threshold, "oxygen_saturation"] = np.nan
+    df.loc[df["oxygen_saturation"] < hypoxemia_threshold, "oxygen_saturation"] = np.nan
 
     # Fever temperature outlier removal
     hypothermia_threshold = 35  # in Celsius
-    transformed_hypothermia_threshold = quantitative_transforms["fever_temperature"].transform(
-        np.array(hypothermia_threshold).reshape(-1, 1)
-    )[0][0]
-    df.loc[df["fever_temperature"] <= transformed_hypothermia_threshold, "fever_temperature"] = np.nan
+    df.loc[df["fever_temperature"] <= hypothermia_threshold, "fever_temperature"] = np.nan
 
     # Age outlier removal
     min_age, max_age = -1, 95
-    transformed_max_age = quantitative_transforms["age"].transform(np.array(max_age).reshape(-1, 1))[0][0]
     if min_age >= -1:
-        transformed_min_age = quantitative_transforms["age"].transform(np.array(min_age).reshape(-1, 1))[0][0]
-        df.loc[(df["age"] <= transformed_min_age) | (df["age"] >= transformed_max_age), "age"] = np.nan
+        df.loc[(df["age"] <= min_age) | (df["age"] >= max_age), "age"] = np.nan
     else:
-        df.loc[df["age"] >= transformed_max_age, "age"] = np.nan
+        df.loc[df["age"] >= max_age, "age"] = np.nan
 
     # Save boxplots and histograms
     save_boxplots_and_histograms(df, quantitative_vars, ROOT, "extended_df_train_boxplot.png")
@@ -380,24 +438,61 @@ if __name__ == "__main__":
     _, df_train = cv_split_and_save(df, test_split=0.2)
 
     # Apply transformation to quantitative_vars to achieve normal-ish distributions
-    quantitative_transforms = powertransform(df_train, quantitative_vars)
+    #quantitative_transforms = powertransform(df_train, quantitative_vars)
     # Plot to check that it is a'ight
     multibar_plots(df_train, target_var, quantitative_vars, [], [], save_name="quantitative_vars_yeo_johnson.png")  # Commented out because it is done
 
     # Remove outliers
-    remove_outliers(df_train, quantitative_transforms, quantitative_vars)
+    remove_outliers(df_train, quantitative_vars)
 
     # Handle missing values
     # Impute binary columns
     df_train = impute_binary_columns(df_train)
 
-    # Impute categorical columns
-    # categorical_columns = ['country_of_residence']
-    # df_train = impute_categorical_columns(df_train, categorical_columns)
-    df_train = df_train.dropna(subset=['country_of_residence'])
+    missing_values = df_train.isnull().sum()
 
-    # Std Scaler
-    std_scalers = standardize(df_train, quantitative_vars)
+    # Show columns with missing values
+    remaining_missing = missing_values[missing_values > 0]
+    print(remaining_missing)
+
+    #categorical_columns = ['country_of_residence', 'patient_id']
+    numerical_columns = ['oxygen_saturation', 'fever_temperature']
+    date_columns = [col for col in df_train.columns if 'date_of_first_symptoms' in col or 'admission_date' in col]
+
+    # FOR NOW, JUST DROP MISSING VALUES (2) FOR PATIENT_ID
+    df_train = df_train.dropna(subset=['patient_id'])
+
+    # Fill with mode (2)
+    df_train['country_of_residence'] = df_train['country_of_residence'].fillna(df_train['country_of_residence'].mode()[0])
+
+    # Fill age (18) with mean or mode
+    age_mode = df_train['age'].mode()[0]
+    print(age_mode)
+    df_train['age'] = df_train['age'].fillna(age_mode)
+
+    # Definir límites razonables para las variables
+    constraints = {
+        'oxygen_saturation': (50, 100),
+        'fever_temperature': (35, 42)
+    }
+    
+    df_train = impute_numeric_columns_with_regression(df_train, numerical_columns, constraints=constraints)
+
+    # Impute date columns
+    df_train = impute_dates_by_order(df_train, "date_of_first_symptoms")
+
+    df_train = impute_dates_by_order(df_train, "admission_date")
+
+    # Check for missing values
+    missing_values = df_train.isnull().sum()
+    remaining_missing = missing_values[missing_values > 0]
+
+    if not remaining_missing.empty:
+        print("Columns with missing values after imputation:")
+        print(remaining_missing)
+    else:
+        print("No columns with missing values after imputation.")
+
 
     # Apply class balancing
     df_train = balance_classes(df_train, target_var)
@@ -405,7 +500,9 @@ if __name__ == "__main__":
     # Apply One-hot encoding to country_of_residence column
     df_train = one_hot_encode_column(df_train, "country_of_residence")
 
+    # Std Scaler
+    std_scalers = standardize(df_train, quantitative_vars+ordinal_vars)
 
-    df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed.csv"), index=False)
-
-
+    df_train.drop('Unnamed: 0', axis=1, inplace=True)
+    #df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed.csv"), index=False)
+    df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed_standard.csv"), index=False)

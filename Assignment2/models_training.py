@@ -1,3 +1,4 @@
+import os
 import pickle
 import pandas as pd
 from sklearn.model_selection import cross_val_score
@@ -172,6 +173,105 @@ def get_validation_df():
 
 if __name__ == '__main__':
     train_df = pd.read_csv(ROOT + DF_TRAIN)
+
+    k = len("country_of_residence")
+    countries = [col_name for col_name in list(train_df.columns) if col_name[:k] == "country_of_residence"]
+
+    nominal_vars = [
+        "sex", "history_of_fever", "cough", "sore_throat",
+        "runny_nose", "wheezing", "shortness_of_breath", "headache", "loss_of_taste",
+        "fatigue_malaise", "muscle_aches", "joint_pain", "diarrhoea", "vomiting_nausea",
+        "chronic_cardiac_disease", "hypertension", "chronic_pulmonary_disease", "asthma", "smoking"
+    ] + countries
+
+    ordinal_vars = [
+        "date_of_first_symptoms_month", "date_of_first_symptoms_dayofyear",
+        # "admission_date_month", "admission_date_dayofyear"
+    ]
+
+    quantitative_vars = [
+        "age", "fever_temperature", "oxygen_saturation",
+        "date_of_first_symptoms_sin", "date_of_first_symptoms_cos",
+        # "admission_date_sin", "admission_date_cos"
+    ]
+
+    target_var = "PCR_result"
+
+    X_train = train_df[quantitative_vars + nominal_vars + ordinal_vars]
+    y_train = train_df[target_var]
+
     MT = ModelTraining()
+    best_svm, results_svm = MT.svm(X_train, y_train)
+    best_nb, results_nb = MT.naive_bayes(X_train, y_train)
+    best_tree, results_tree = MT.decision_tree(X_train, y_train)
+    best_rf, results_rf = MT.random_forest(X_train, y_train)
+    best_log, results_log = MT.logistic_regression(X_train, y_train)
+    best_rule, results_rule = MT.rule_induction(X_train, y_train)
+
+    # Saving to files
+    filepaths = {
+        'best_svm': os.path.join(ROOT + "outputs/best_svm.csv"),
+        'results_svm': os.path.join(ROOT + "outputs/results_svm.csv"),
+        'best_nb': os.path.join(ROOT + "outputs/best_nb.csv"),
+        'results_nb': os.path.join(ROOT + "outputs/results_nb.csv"),
+        'best_tree': os.path.join(ROOT + "outputs/best_tree.csv"),
+        'results_tree': os.path.join(ROOT + "outputs/results_tree.csv"),
+        'best_rf': os.path.join(ROOT + "outputs/best_rf.csv"),
+        'results_rf': os.path.join(ROOT + "outputs/results_rf.csv"),
+        'best_log': os.path.join(ROOT + "outputs/best_log.csv"),
+        'results_log': os.path.join(ROOT + "outputs/results_log.csv"),
+        'best_rule': os.path.join(ROOT + "outputs/best_rule.csv"),
+        'results_rule': os.path.join(ROOT + "outputs/results_rule.csv")
+    }
+
+    dfs = {
+        'best_svm': best_svm,
+        'results_svm': results_svm,
+        'best_nb': best_nb,
+        'results_nb': results_nb,
+        'best_tree': best_tree,
+        'results_tree': results_tree,
+        'best_rf': best_rf,
+        'results_rf': results_rf,
+        'best_log': best_log,
+        'results_log': results_log,
+        'best_rule': best_rule,
+        'results_rule': results_rule
+    }
+
+    for name, df in dfs.items():
+        df.to_csv(filepaths[name], index=False)
+
     MV = ModelValidation()
     validation_df = get_validation_df()
+
+    X_val = validation_df[quantitative_vars + nominal_vars + ordinal_vars]
+    y_val = validation_df[target_var]
+
+    results_svm = MV.svm(X_train, y_train, X_val, y_val, best_svm)
+    results_nb = MV.naive_bayes(X_train, y_train, X_val, y_val, best_nb)
+    results_tree = MV.decision_tree(X_train, y_train, X_val, y_val, best_tree)
+    results_rf = MV.random_forest(X_train, y_train, X_val, y_val, best_rf)
+    results_log = MV.logistic_regression(X_train, y_train, X_val, y_val, best_log)
+    results_rule = MV.rule_induction(X_train, y_train, X_val, y_val, best_rule)
+
+    filepaths = {
+        'results_svm': os.path.join(ROOT + "outputs/results_svm_val.csv"),
+        'results_nb': os.path.join(ROOT + "outputs/results_nb_val.csv"),
+        'results_tree': os.path.join(ROOT + "outputs/results_tree_val.csv"),
+        'results_rf': os.path.join(ROOT + "outputs/results_rf_val.csv"),
+        'results_log': os.path.join(ROOT + "outputs/results_log_val.csv"),
+        'results_rule': os.path.join(ROOT + "outputs/results_rule_val.csv")
+    }
+
+    dfs = {
+        'results_svm': results_svm,
+        'results_nb': results_nb,
+        'results_tree': results_tree,
+        'results_rf': results_rf,
+        'results_log': results_log,
+        'results_rule': results_rule
+    }
+
+    for name, df in dfs.items():
+        df.to_csv(filepaths[name], index=False)
