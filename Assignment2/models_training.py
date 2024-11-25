@@ -1,7 +1,7 @@
 import os
 import pickle
 import pandas as pd
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -12,9 +12,94 @@ import wittgenstein as lw
 from models_validation import ModelValidation
 from sklearn.model_selection import train_test_split
 
+
+
+from skopt import BayesSearchCV
+
+
+def nested_bayes_search(X, y, model, search_space):
+    # Initialize the Bayesian optimizer with lw.RIPPER
+    bayes_search = BayesSearchCV(
+        estimator=model,  # Assuming RIPPER takes 'k' as a hyperparameter
+        search_spaces=search_space,
+        scoring="f1",
+        cv=5,  # Inner CV for hyperparameter tuning
+        n_iter=20,  # Number of optimization iterations
+        random_state=42
+    )
+
+    # Define the outer CV split
+    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+    # Perform nested cross-validation
+    outer_scores = []
+    for train_idx, test_idx in outer_cv.split(X, y):
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+
+        # Fit the Bayesian optimizer on the inner CV
+        bayes_search.fit(X_train, y_train)
+
+        # Evaluate on the outer test set
+        best_model = bayes_search.best_estimator_
+        test_score = cross_val_score(best_model, X_test, y_test, cv=5, scoring="f1").mean()
+        outer_scores.append(test_score)
+
+    # Compile results
+    return {
+        "outer_scores": outer_scores,
+        "mean_outer_score": np.mean(outer_scores),
+        "std_outer_score": np.std(outer_scores),
+    }
+
+
 class ModelTraining():
     def __init__(self) -> None:
         pass
+
+    def bayes_decision_tree(self, X, y):
+        # Define the hyperparameter search space
+        search_space = {
+            "criterion": ["gini", "entropy"],
+            "max_depth": (5, 15)
+        }
+        return nested_bayes_search(X, y, DecisionTreeClassifier(random_state=32), search_space)
+
+    def bayes_rule_induction(self, X, y):
+        # Define the hyperparameter search space
+        search_space = {
+            "k": (1, 4),
+        }
+        return nested_bayes_search(X, y, lw.RIPPER(random_state=32), search_space)
+
+    def bayes_logistic_regression(self, X, y):
+        # Define the hyperparameter search space
+        search_space = {
+            "penalties": [None, 'l2']
+        }
+        return nested_bayes_search(X, y, LogisticRegression(random_state=32), search_space)
+
+    def bayes_svm(self, X, y):
+        # Define the hyperparameter search space
+        search_space = {
+            "kernels": ['linear', 'poly', 'rbf', 'sigmoid']
+        }
+        return nested_bayes_search(X, y, SVC(random_state=32), search_space)
+
+    def bayes_naive_bayes(self, X, y):
+        # Define the hyperparameter search space
+        search_space = {
+
+        }
+        return nested_bayes_search(X, y, GaussianNB(), search_space)
+
+    def bayes_random_forest(self, X, y):
+        # Define the hyperparameter search space
+        search_space = {
+            "max_depth": [5, 10, 15],
+            "n_estimators": [100, 200, 300]
+        }
+        return nested_bayes_search(X, y, RandomForestClassifier(random_state=32), search_space)
 
     def decision_tree(self, X_train, y_train):
         criterion = ['gini', 'entropy']
@@ -138,15 +223,15 @@ def get_validation_df():
     validation_df = pd.read_csv(ROOT + DF_VALIDATION)
 
     # Load the saved transformers
-    with open(TRANSFORMERS_FILE, "rb") as f:
-        q_transformers = pickle.load(f)
+    #with open(TRANSFORMERS_FILE, "rb") as f:
+    #    q_transformers = pickle.load(f)
 
     # Apply the transformers to the corresponding columns
-    for var, transformer in q_transformers.items():
-        mask = ~validation_df[var].isna()  # Mask for non-NaN values
-        validation_df.loc[mask, var] = transformer.transform(
-            validation_df.loc[mask, var].values.reshape(-1, 1)
-        )
+    #for var, transformer in q_transformers.items():
+    #    mask = ~validation_df[var].isna()  # Mask for non-NaN values
+    #    validation_df.loc[mask, var] = transformer.transform(
+    #        validation_df.loc[mask, var].values.reshape(-1, 1)
+    #    )
 
     # Load the saved standard scalers
     with open("COVID19_data/scalers.pkl", "rb") as f:
