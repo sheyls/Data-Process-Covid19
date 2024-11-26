@@ -99,7 +99,10 @@ def nested_bayes_search(X, y, model, search_space):
         'accuracy'
         """
         test_score = cross_validate(best_model, X_test, y_test, cv=5, scoring=["f1", "roc_auc",'accuracy', 'precision', 'recall'])
-        outer_scores.append(test_score)
+        cleaned_scores = {}
+        for key, value in test_score.items():
+            cleaned_scores[key] = (np.mean(value), np.std(value))
+        outer_scores.append(cleaned_scores)
         best_kwargs.append(bayes_search.best_params_)
     # Compile results
     result = pd.DataFrame(data={"scores": outer_scores, "hyperparams": best_kwargs})
