@@ -13,6 +13,7 @@ import wittgenstein as lw
 from models_validation import ModelValidation
 from sklearn.model_selection import train_test_split
 from skopt.space import Real, Categorical, Integer
+import ast
 
 
 
@@ -356,8 +357,26 @@ def main():
     for name, f in models:
         print(f"Training {name}")
         results = f(X_train, y_train)
+
+        # Convertir los resultados en un dataframe
+        rows = []
+        for _, row in results.iterrows():
+            scores = row['scores']
+            hyperparams = row['hyperparams']
+            row_data = {**hyperparams}
+            for key, value in scores.items():
+                if isinstance(value, tuple):
+                    # Si el valor es una tupla, dividir en "mean" y "std"
+                    row_data[f"{key}_mean"] = value[0]
+                    row_data[f"{key}_std"] = value[1]
+                else:
+                    # Si no es una tupla, usar el valor directamente
+                    row_data[key] = value
+            rows.append(row_data)
+        df_results = pd.DataFrame(rows)
+
         print(f"Saving the results of {name}")
-        results.to_csv(os.path.join(ROOT, f"results_{name}.csv"), index=False)
+        df_results.to_csv(os.path.join(ROOT, f"results_{name}.csv"), index=False)
 
 if __name__ == '__main__':
     main()
