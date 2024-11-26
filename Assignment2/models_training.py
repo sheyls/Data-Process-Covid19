@@ -1,11 +1,12 @@
 import os
 import pickle
 import pandas as pd
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import cross_val_score, StratifiedKFold, cross_validate
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.svm import SVC
 import numpy as np
 import wittgenstein as lw
@@ -17,13 +18,47 @@ from skopt.space import Real, Categorical, Integer
 
 from skopt import BayesSearchCV
 
+class MixedBayes(ClassifierMixin, BaseEstimator):
+    def __init__(self, binary_vars, quantitative_vars):
+        self.bernoulli_nb = BernoulliNB()
+        self.gaussian_nb = GaussianNB()
+        self.binary_vars = binary_vars
+        self.quantitative_vars = quantitative_vars
+
+    def predict_proba(self, X):
+        # Calculate probabilities from each model
+        probs_binary = self.bernoulli_nb.predict_proba(X[self.binary_vars])
+        probs_continuous = self.gaussian_nb.predict_proba(X[self.quantitative_vars])
+
+        # Combine probabilities by multiplying
+        combined_probs = probs_binary * probs_continuous
+
+        # Divide by prior (same for both models)
+        priors = self.bernoulli_nb.class_prior_
+        adjusted_probs = combined_probs / priors
+
+        # Normalize probabilities
+        final_probs = adjusted_probs / adjusted_probs.sum(axis=1, keepdims=True)
+        return final_probs
+
+    def predict(self, X):
+        return self.predict_proba(X)
+
+    def fit(self,X,y):
+        # Train BernoulliNB on binary variables
+
+        self.bernoulli_nb.fit(X[self.binary_vars], y)
+
+        # Train GaussianNB on quantitative variables
+        self.gaussian_nb.fit(X[self.quantitative_vars], y)
+
 
 def nested_bayes_search(X, y, model, search_space):
     # Initialize the Bayesian optimizer with lw.RIPPER
     bayes_search = BayesSearchCV(
         estimator=model,  # Assuming RIPPER takes 'k' as a hyperparameter
         search_spaces=search_space,
-        scoring="f1",
+        scoring="roc_auc",
         cv=5,  # Inner CV for hyperparameter tuning
         n_iter=20,  # Number of optimization iterations
         random_state=42
@@ -34,24 +69,41 @@ def nested_bayes_search(X, y, model, search_space):
 
     # Perform nested cross-validation
     outer_scores = []
+    best_kwargs = []
     for train_idx, test_idx in outer_cv.split(X, y):
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
+        X_train = X.iloc[train_idx]
+        X_test = X.iloc[test_idx]
+        y_train = y.iloc[train_idx]
+        y_test = y.iloc[test_idx]
 
         # Fit the Bayesian optimizer on the inner CV
         bayes_search.fit(X_train, y_train)
 
         # Evaluate on the outer test set
         best_model = bayes_search.best_estimator_
-        test_score = cross_validate(best_model, X_test, y_test, cv=5, scoring=["f1","auc",'accuracy', 'precision', 'recall']).mean()
-        outer_scores.append(test_score)
 
+        """
+        'neg_root_mean_squared_error', 'precision_weighted', 'roc_auc_ovr', 'recall_micro', 
+        'f1_samples', 'neg_mean_poisson_deviance', 'neg_log_loss', 'r2', 'balanced_accuracy', 
+        'recall_samples', 'recall_weighted', 'roc_auc_ovo_weighted', 'jaccard', 'precision_macro', 
+        'neg_median_absolute_error', 'roc_auc', 'neg_negative_likelihood_ratio', 'f1_weighted', 
+        'roc_auc_ovo', 'precision_micro', 'neg_mean_absolute_error', 'max_error', 'mutual_info_score', 
+        'neg_mean_squared_error', 'adjusted_rand_score', 'f1_macro', 'matthews_corrcoef', 
+        'adjusted_mutual_info_score', 'completeness_score', 'top_k_accuracy', 'neg_mean_absolute_percentage_error', 
+        'recall', 'neg_mean_gamma_deviance', 'jaccard_micro', 'jaccard_weighted', 'average_precision', 'neg_brier_score', 
+        'neg_mean_squared_log_error', 'rand_score', 'jaccard_macro', 'precision', 'jaccard_samples', 'recall_macro', 
+        'f1_micro', 'positive_likelihood_ratio', 'fowlkes_mallows_score', 'homogeneity_score', 
+        'neg_root_mean_squared_log_error', 'f1', 'v_measure_score', 'roc_auc_ovr_weighted', 
+        'd2_absolute_error_score', 'precision_samples', 'normalized_mutual_info_score', 'explained_variance', 
+        'accuracy'
+        """
+        test_score = cross_validate(best_model, X_test, y_test, cv=5, scoring=["f1", "roc_auc",'accuracy', 'precision', 'recall']).mean()
+        outer_scores.append(test_score)
+        best_kwargs.append(bayes_search.best_params_)
     # Compile results
-    return {
-        "outer_scores": outer_scores,
-        "mean_outer_score": np.mean(outer_scores),
-        "std_outer_score": np.std(outer_scores),
-    }
+    result = pd.DataFrame(data={"scores": outer_scores, "hyperparams": best_kwargs})
+
+    return result
 
 
 class ModelTraining():
@@ -61,44 +113,44 @@ class ModelTraining():
     def bayes_decision_tree(self, X, y):
         # Define the hyperparameter search space
         search_space = {
-            "criterion": ["gini", "entropy"],
-            "max_depth": (5, 15)
+            "criterion": Categorical(["gini", "entropy"]),
+            "max_depth": Integer(5, 15)
         }
         return nested_bayes_search(X, y, DecisionTreeClassifier(random_state=32), search_space)
 
     def bayes_rule_induction(self, X, y):
         # Define the hyperparameter search space
         search_space = {
-            "k": (1, 4),
+            "k": Integer(1, 8),
         }
         return nested_bayes_search(X, y, lw.RIPPER(random_state=32), search_space)
 
     def bayes_logistic_regression(self, X, y):
         # Define the hyperparameter search space
         search_space = {
-            "penalties": [None, 'l2']
+            "penalties": Categorical([None, 'l2'])
         }
         return nested_bayes_search(X, y, LogisticRegression(random_state=32), search_space)
 
     def bayes_svm(self, X, y):
         # Define the hyperparameter search space
         search_space = {
-            "kernels": ['linear', 'poly', 'rbf', 'sigmoid']
+            "kernels": Categorical(['linear', 'poly', 'rbf', 'sigmoid'])
         }
         return nested_bayes_search(X, y, SVC(random_state=32), search_space)
 
     def bayes_naive_bayes(self, X, y):
         # Define the hyperparameter search space
         search_space = {
-
+            "var_smoothing" : Real(1e-20, 1e-5)
         }
         return nested_bayes_search(X, y, GaussianNB(), search_space)
 
     def bayes_random_forest(self, X, y):
         # Define the hyperparameter search space
         search_space = {
-            "max_depth": [5, 10, 15],
-            "n_estimators": [100, 200, 300]
+            "max_depth": Integer(5,  15),
+            "n_estimators": Integer(100, 300)
         }
         return nested_bayes_search(X, y, RandomForestClassifier(random_state=32), search_space)
 
@@ -285,11 +337,25 @@ if __name__ == '__main__':
 
     target_var = "PCR_result"
 
-    X_train = train_df[quantitative_vars + nominal_vars + ordinal_vars]
+    X_train = train_df[quantitative_vars + nominal_vars + ordinal_vars].astype(float)
     y_train = train_df[target_var]
 
     # Training
     MT = ModelTraining()
+    models = [
+        ("bayes_decision_tree", MT.bayes_decision_tree),
+        ("bayes_rule_induction", MT.bayes_rule_induction),
+        ("bayes_logistic_regression", MT.bayes_logistic_regression),
+        ("bayes_naive_bayes", MT.bayes_naive_bayes),
+        ("bayes_svm", MT.bayes_svm),
+    ]
+    for name, f in models:
+        print(f"Training {name}")
+        results = f(X_train, y_train)
+        print(f"Saving the results of {name}")
+        results.to_csv(os.path.join(ROOT, f"results_{name}.csv"),index=False)
+
+    """
     train_results_svm, best_svm = MT.svm(X_train, y_train)
     train_results_nb, best_nb = MT.naive_bayes(X_train, y_train)
     train_results_tree, best_tree = MT.decision_tree(X_train, y_train)
@@ -352,3 +418,4 @@ if __name__ == '__main__':
 
     for name, df in dfs.items():
         df.to_csv(filepaths[name], index=False)
+    """
