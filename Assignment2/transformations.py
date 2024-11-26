@@ -63,7 +63,7 @@ import seaborn as sns
 
 from Assignment2.eda import multibar_plots, save_boxplots_and_histograms
 
-ROOT = "Assignment2/COVID19_data/"
+ROOT = "./COVID19_data/"
 DS_NAME = "extended_df.csv"
 
 def balance_classes(df, target_column, output_file_name="class_balance_results.txt"):
@@ -510,12 +510,13 @@ if __name__ == "__main__":
     # Apply class balancing
     df_train = balance_classes(df_train, target_var)
 
-    # Apply One-hot encoding to country_of_residence column
-    df_train = one_hot_encode_column(df_train, "country_of_residence")
-
     # Std Scaler
-    # std_scalers = standardize(df_train, quantitative_vars+ordinal_vars)
+    std_scalers = standardize(df_train, quantitative_vars+ordinal_vars)
 
     df_train.drop('Unnamed: 0', axis=1, inplace=True)
+
+    print(df_train.describe().to_string())
+    print(df_train.info())
+
     df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed.csv"), index=False)
     # df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed_standard.csv"), index=False)
