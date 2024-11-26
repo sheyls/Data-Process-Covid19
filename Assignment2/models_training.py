@@ -59,8 +59,8 @@ def nested_bayes_search(X, y, model, search_space):
         estimator=model,  # Assuming RIPPER takes 'k' as a hyperparameter
         search_spaces=search_space,
         scoring="roc_auc",
-        cv=5,  # Inner CV for hyperparameter tuning
-        n_iter=20,  # Number of optimization iterations
+        cv=3,  # Inner CV for hyperparameter tuning
+        n_iter=10,  # Number of optimization iterations
         random_state=42
     )
 
@@ -83,6 +83,7 @@ def nested_bayes_search(X, y, model, search_space):
         best_model = bayes_search.best_estimator_
 
         """
+        All allowed scores:
         'neg_root_mean_squared_error', 'precision_weighted', 'roc_auc_ovr', 'recall_micro', 
         'f1_samples', 'neg_mean_poisson_deviance', 'neg_log_loss', 'r2', 'balanced_accuracy', 
         'recall_samples', 'recall_weighted', 'roc_auc_ovo_weighted', 'jaccard', 'precision_macro', 
@@ -97,7 +98,7 @@ def nested_bayes_search(X, y, model, search_space):
         'd2_absolute_error_score', 'precision_samples', 'normalized_mutual_info_score', 'explained_variance', 
         'accuracy'
         """
-        test_score = cross_validate(best_model, X_test, y_test, cv=5, scoring=["f1", "roc_auc",'accuracy', 'precision', 'recall']).mean()
+        test_score = cross_validate(best_model, X_test, y_test, cv=5, scoring=["f1", "roc_auc",'accuracy', 'precision', 'recall'])
         outer_scores.append(test_score)
         best_kwargs.append(bayes_search.best_params_)
     # Compile results
@@ -311,18 +312,18 @@ DF_VALIDATION = "extended_df_validation.csv"
 TRANSFORMERS_FILE = "quantitative_transformers.pkl"
 
 
-if __name__ == '__main__':
+def main():
     train_df = pd.read_csv(ROOT + DF_TRAIN)
 
     k = len("country_of_residence")
     countries = [col_name for col_name in list(train_df.columns) if col_name[:k] == "country_of_residence"]
 
     nominal_vars = [
-        "sex", "history_of_fever", "cough", "sore_throat",
-        "runny_nose", "wheezing", "shortness_of_breath", "headache", "loss_of_taste",
-        "fatigue_malaise", "muscle_aches", "joint_pain", "diarrhoea", "vomiting_nausea",
-        "chronic_cardiac_disease", "hypertension", "chronic_pulmonary_disease", "asthma", "smoking"
-    ] + countries
+                       "sex", "history_of_fever", "cough", "sore_throat",
+                       "runny_nose", "wheezing", "shortness_of_breath", "headache", "loss_of_taste",
+                       "fatigue_malaise", "muscle_aches", "joint_pain", "diarrhoea", "vomiting_nausea",
+                       "chronic_cardiac_disease", "hypertension", "chronic_pulmonary_disease", "asthma", "smoking"
+                   ] + countries
 
     ordinal_vars = [
         "date_of_first_symptoms_month", "date_of_first_symptoms_dayofyear",
@@ -353,7 +354,10 @@ if __name__ == '__main__':
         print(f"Training {name}")
         results = f(X_train, y_train)
         print(f"Saving the results of {name}")
-        results.to_csv(os.path.join(ROOT, f"results_{name}.csv"),index=False)
+        results.to_csv(os.path.join(ROOT, f"results_{name}.csv"), index=False)
+
+if __name__ == '__main__':
+    main()
 
     """
     train_results_svm, best_svm = MT.svm(X_train, y_train)
