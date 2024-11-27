@@ -2,7 +2,9 @@ import os
 import pickle
 import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.feature_selection import SelectFromModel, SequentialFeatureSelector, SelectKBest, f_classif
 from sklearn.model_selection import cross_val_score, StratifiedKFold, cross_validate
+from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -53,14 +55,32 @@ class MixedBayes(ClassifierMixin, BaseEstimator):
         self.gaussian_nb.fit(X[self.quantitative_vars], y)
 
 
-def nested_bayes_search(X, y, model, search_space):
-    # Initialize the Bayesian optimizer with lw.RIPPER
+def nested_bayes_search(X, y, model, search_space, fss="univariate"):
+    # Initialize the Bayesian optimizer
+    new_search_space = {}
+    for key, value in search_space.items():
+        new_search_space["model__" + key] = value
+
+    if fss == "univariate":
+        pipeline = Pipeline([
+            ("fss", SelectKBest(score_func=f_classif)),
+            ("model", model)
+        ])
+        new_search_space["fss__k"] = Integer(4, X.shape[1])
+    elif fss == "wrapper":
+        pipeline = Pipeline([
+            ("fss", SequentialFeatureSelector(model)),
+            ("model", model)
+        ])
+    else:
+        raise ValueError(f"FSS strategy {fss} is unimplemented.")
+
     bayes_search = BayesSearchCV(
-        estimator=model,  # Assuming RIPPER takes 'k' as a hyperparameter
-        search_spaces=search_space,
+        estimator=pipeline,  # Assuming RIPPER takes 'k' as a hyperparameter
+        search_spaces=new_search_space,
         scoring="roc_auc",
-        cv=3,  # Inner CV for hyperparameter tuning
-        n_iter=10,  # Number of optimization iterations
+        cv=2,  # Inner CV for hyperparameter tuning
+        n_iter=2,  # Number of optimization iterations
         random_state=42
     )
 
