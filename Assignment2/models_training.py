@@ -80,8 +80,10 @@ def nested_bayes_search(X, y, model, search_space, fss="univariate"):
         estimator=pipeline,  # Assuming RIPPER takes 'k' as a hyperparameter
         search_spaces=new_search_space,
         scoring="roc_auc",
-        cv=2,  # Inner CV for hyperparameter tuning
-        n_iter=2,  # Number of optimization iterations
+        cv=5,  # Inner CV for hyperparameter tuning
+        n_iter=20,  # Number of optimization iterations
+        n_jobs=-1,
+        n_points=2,
         random_state=42
     )
 
@@ -175,160 +177,10 @@ class ModelTraining():
     def bayes_random_forest(self, X, y):
         # Define the hyperparameter search space
         search_space = {
-            "max_depth": Integer(5,  15),
-            "n_estimators": Integer(100, 300)
+            "max_depth": Integer(5,  30),
+            "n_estimators": Integer(100, 500)
         }
         return nested_bayes_search(X, y, RandomForestClassifier(random_state=32), search_space)
-
-    def decision_tree(self, X_train, y_train):
-        criterion = ['gini', 'entropy']
-        max_depth = [5, 10, 15]
-        results = pd.DataFrame()
-        scores_dict = {'max_depth': [], 'criterion': [],
-                       'accuracy': [], 'precision': [], 'recall': [], 'f1': []}
-        for depth in max_depth:
-            for criteria in criterion:
-                model = DecisionTreeClassifier(criterion=criteria, max_depth=depth, random_state=42)
-                for scoring in ['accuracy', 'precision', 'recall', 'f1']:
-                    scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                    scores_dict[scoring] = np.mean(scores), np.std(scores)
-                scores_dict['max_depth'] = depth
-                scores_dict['criterion'] = criteria
-                results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
-        best_f1_score = results['f1'].idxmax()
-        best_model = results.loc[best_f1_score]
-        best_model['Evaluation'] = 'Train'
-        return results, best_model
-
-    def rule_induction(self, X_train, y_train):
-        K = [1, 2, 3, 4]
-        results = pd.DataFrame()
-        scores_dict = {'K': [],
-                       'accuracy': [], 'precision': [], 'recall': [], 'f1': []}
-        for k in K:
-            model = lw.RIPPER(k=k)
-            for scoring in ['accuracy', 'precision', 'recall', 'f1']:
-                scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                scores_dict[scoring] = np.mean(scores), np.std(scores)
-            scores_dict['K'] = k
-            results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
-        best_f1_score = results['f1'].idxmax()
-        best_model = results.loc[best_f1_score]
-        best_model['Evaluation'] = 'Train'
-        return results, best_model
-
-    def logistic_regression(self, X_train, y_train):
-        penalties = [None, 'l2']
-        results = pd.DataFrame()
-        scores_dict = {'penalty': [],
-                       'accuracy': [], 'precision': [], 'recall': [], 'f1': []}
-        for penalty in penalties:
-            model = LogisticRegression(penalty=penalty, max_iter=1000, random_state=42)
-            for scoring in ['accuracy', 'precision', 'recall', 'f1']:
-                scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                scores_dict[scoring] = np.mean(scores), np.std(scores)
-            scores_dict['penalty'] = penalty
-            results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
-        best_f1_score = results['f1'].idxmax()
-        best_model = results.loc[best_f1_score]
-        best_model['Evaluation'] = 'Train'
-        return results, best_model
-
-    def svm(self, X_train, y_train):
-        kernels = ['linear', 'poly', 'rbf', 'sigmoid']
-        results = pd.DataFrame()
-        scores_dict = {'kernel': [],
-                       'accuracy': [], 'precision': [], 'recall': [], 'f1': []}
-        for kernel in kernels:
-            model = SVC(kernel=kernel)
-            for scoring in ['accuracy', 'precision', 'recall', 'f1']:
-                scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                scores_dict[scoring] = np.mean(scores), np.std(scores)
-            scores_dict['kernel'] = kernel
-            results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
-        best_f1_score = results['f1'].idxmax()
-        best_model = results.loc[best_f1_score]
-        best_model['Evaluation'] = 'Train'
-        return results, best_model
-
-    def naive_bayes(self, X_train, y_train):
-        results = pd.DataFrame()
-        scores_dict = {'accuracy': [], 'precision': [], 'recall': [], 'f1': []}
-        model = GaussianNB()
-        for scoring in ['accuracy', 'precision', 'recall', 'f1']:
-            scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-            scores_dict[scoring] = np.mean(scores), np.std(scores)
-        results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
-        best_f1_score = results['f1'].idxmax()
-        best_model = results.loc[best_f1_score]
-        best_model['Evaluation'] = 'Train'
-        return results, best_model
-
-    def random_forest(self, X_train, y_train):
-        max_depth = [5, 10, 15]
-        n_estimators = [100, 200, 300]
-        results = pd.DataFrame()
-        scores_dict = {'max_depth': [], 'n_estimators': [],
-                       'accuracy': [], 'precision': [], 'recall': [], 'f1': []}
-        for depth in max_depth:
-            for estimator in n_estimators:
-                model = RandomForestClassifier(n_estimators=estimator, max_depth=depth, random_state=42)
-                for scoring in ['accuracy', 'precision', 'recall', 'f1']:
-                    scores = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring)
-                    scores_dict[scoring] = np.mean(scores), np.std(scores)
-                scores_dict['max_depth'] = depth
-                scores_dict['n_estimators'] = estimator
-                results = pd.concat([results, pd.DataFrame([scores_dict])], ignore_index=True)
-        best_f1_score = results['f1'].idxmax()
-        best_model = results.loc[best_f1_score]
-        best_model['Evaluation'] = 'Train'
-        return results, best_model
-
-
-def get_validation_df():
-    """
-    This function will load the validation dataframe. Then, it will put it through the same fitted transformations
-    of the training dataframe and return it.
-
-    The transformations should be:
-    1. Transformations of the quantitative variables.
-    2. Imputation of missing values.
-
-    Removal of outliers should not happen.
-    As encoding of nominal variables is fixed, it should not be required for validation.
-
-    :return: pd.DataFrame
-    """
-    # Load validation dataset
-    validation_df = pd.read_csv(ROOT + DF_VALIDATION)
-
-    # Load the saved transformers
-    #with open(TRANSFORMERS_FILE, "rb") as f:
-    #    q_transformers = pickle.load(f)
-
-    # Apply the transformers to the corresponding columns
-    #for var, transformer in q_transformers.items():
-    #    mask = ~validation_df[var].isna()  # Mask for non-NaN values
-    #    validation_df.loc[mask, var] = transformer.transform(
-    #        validation_df.loc[mask, var].values.reshape(-1, 1)
-    #    )
-
-    # Load the saved standard scalers
-    with open("COVID19_data/scalers.pkl", "rb") as f:
-        std_scalers = pickle.load(f)
-
-    # Apply the scalers to the corresponding columns
-    for var, scaler in std_scalers.items():
-        mask = ~validation_df[var].isna()  # Mask for non-NaN values
-        validation_df.loc[mask, var] = scaler.transform(
-            validation_df.loc[mask, var].values.reshape(-1, 1)
-        )
-
-
-    # TODO fill the validation dataset with the exact same imputer of the train set
-
-
-    return validation_df
 
 
 ROOT = "./COVID19_data/"
@@ -369,11 +221,12 @@ def main():
     # Training
     MT = ModelTraining()
     models = [
-        ("bayes_decision_tree", MT.bayes_decision_tree),
-        ("bayes_rule_induction", MT.bayes_rule_induction),
-        ("bayes_logistic_regression", MT.bayes_logistic_regression),
-        ("bayes_naive_bayes", MT.bayes_naive_bayes),
-        ("bayes_svm", MT.bayes_svm),
+        # ("bayes_decision_tree", MT.bayes_decision_tree),
+        # ("bayes_rule_induction", MT.bayes_rule_induction),
+        # ("bayes_logistic_regression", MT.bayes_logistic_regression),
+        # ("bayes_naive_bayes", MT.bayes_naive_bayes),
+        # ("bayes_svm", MT.bayes_svm),
+        ("bayes_rf", MT.bayes_random_forest)
     ]
     for name, f in models:
         print(f"Training {name}")
@@ -398,6 +251,7 @@ def main():
 
         print(f"Saving the results of {name}")
         df_results.to_csv(os.path.join(ROOT, f"/Results/results_{name}.csv"), index=False)
+
 
 if __name__ == '__main__':
     main()
