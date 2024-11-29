@@ -56,7 +56,7 @@ class MixedBayes(ClassifierMixin, BaseEstimator):
         self.gaussian_nb.fit(X[self.quantitative_vars], y)
 
 
-def nested_bayes_search(X, y, model, search_space, fss="univariate"):
+def nested_bayes_search(X, y, model, search_space, fss="univariate", inner_cv=10, outer_cv=10, n_jobs=-1, n_points=2, n_iter=50):
     # Initialize the Bayesian optimizer
     new_search_space = {}
     for key, value in search_space.items():
@@ -79,23 +79,23 @@ def nested_bayes_search(X, y, model, search_space, fss="univariate"):
     bayes_search = BayesSearchCV(
         estimator=pipeline,  # Assuming RIPPER takes 'k' as a hyperparameter
         search_spaces=new_search_space,
-        scoring="roc_auc",
-        cv=5,  # Inner CV for hyperparameter tuning
-        n_iter=20,  # Number of optimization iterations
-        n_jobs=-1,
-        n_points=2,
+        scoring="accuracy",
+        cv=inner_cv,  # Inner CV for hyperparameter tuning
+        n_iter=n_iter,  # Number of optimization iterations
+        n_jobs=n_jobs,
+        n_points=n_points,
         random_state=42
     )
 
     # Define the outer CV split
-    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    outer_cv = StratifiedKFold(n_splits=outer_cv, shuffle=True, random_state=42)
 
     # Perform nested cross-validation
     outer_scores = []
     best_kwargs = []
     i = 0
     for train_idx, test_idx in outer_cv.split(X, y):
-        print(f"Iter {i}/{5}")
+        print(f"Iter {i}/{outer_cv.n_splits}")
         i += 1
         X_train = X.iloc[train_idx]
         X_test = X.iloc[test_idx]
@@ -182,8 +182,11 @@ class ModelTraining():
     def bayes_random_forest(self, X, y):
         # Define the hyperparameter search space
         search_space = {
-            "max_depth": Integer(5,  30),
-            "n_estimators": Integer(100, 500)
+            "max_depth": Integer(20,  50),
+            "n_estimators": Integer(200, 1000),
+            "min_samples_leaf": Integer(1, 10),
+            "max_features": Categorical(['sqrt', None, 'log2']),
+            "min_samples_split": Integer(2, 20)
         }
         return nested_bayes_search(X, y, RandomForestClassifier(random_state=32), search_space)
 
@@ -213,7 +216,9 @@ def main():
     ]
 
     quantitative_vars = [
-        "age", "fever_temperature", "oxygen_saturation",
+        "age",
+        # "fever_temperature",
+        "oxygen_saturation",
         "date_of_first_symptoms_sin", "date_of_first_symptoms_cos",
         # "admission_date_sin", "admission_date_cos"
     ]
@@ -255,6 +260,7 @@ def main():
         df_results = pd.DataFrame(rows)
 
         print(f"Saving the results of {name}")
+        df_results.to_csv(os.path.join(ROOT, f"results_{name}.csv"), index=False)
         df_results.to_csv(os.path.join(ROOT, f"/Results/results_{name}.csv"), index=False)
 
 
