@@ -485,7 +485,7 @@ if __name__ == "__main__":
 
     # Definir límites razonables para las variables
     constraints = {
-        'oxygen_saturation': (50, 100),
+        'oxygen_saturation': (88, 100),
         'fever_temperature': (35, 42)
     }
     
