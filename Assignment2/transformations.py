@@ -518,5 +518,5 @@ if __name__ == "__main__":
     print(df_train.describe().to_string())
     print(df_train.info())
 
-    df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed.csv"), index=False)
-    # df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed_standard.csv"), index=False)
+    # df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed.csv"), index=False)
+    df_train.to_csv(os.path.join(ROOT, "extended_df_train_preprocessed_standard.csv"), index=False)

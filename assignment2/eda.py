@@ -334,7 +334,7 @@ def print_class_balance(df, target_var, file):
             f.write(balance_output)
 
 
-if __name__ == '__main__':
+def main():
     df1 = pd.read_excel(os.path.join(ROOT, FILE_1))
     df2 = pd.read_excel(os.path.join(ROOT, FILE_2))
 
@@ -360,16 +360,20 @@ if __name__ == '__main__':
     nominal_vars2 = [col for col in df2.columns if col not in non_nominal_vars]
 
     # VISUALIZATION EDA
-    # print_description_and_info(df1, df2) # Commented out because it is done
-    # multibar_plots(df1, target_var, quantitative_vars1, time_vars1, nominal_vars1, save_name="df1_plot.png") # Commented out because it is done
-    # multibar_plots(df2, target_var, quantitative_vars2, time_vars2, nominal_vars2, save_name="df2_plot.png") # Commented out because it is done
+    print_description_and_info(df1, df2)  # Commented out because it is done
+    multibar_plots(df1, target_var, quantitative_vars1, time_vars1, nominal_vars1,
+                   save_name="df1_plot.png")  # Commented out because it is done
+    multibar_plots(df2, target_var, quantitative_vars2, time_vars2, nominal_vars2,
+                   save_name="df2_plot.png")  # Commented out because it is done
 
     # PLOT CORRELATION OF THE QUANTITATIVE VARIABLES
-    # calculate_correlations(df1, quantitative_vars1, df2, quantitative_vars2) # commented out because it is done
+    calculate_correlations(df1, quantitative_vars1, df2, quantitative_vars2)  # commented out because it is done
 
     # PLOT CHI-SQUARE TEST FOR NOMINAL VARIABLES
-    # chi_square_test(df1, nominal_vars1, target_var, alpha=0.05, output_file="chi_square_results_df1.txt") # Commented out because it is done
-    # chi_square_test(df2, nominal_vars2, target_var, alpha=0.05, output_file="chi_square_results_df2.txt") # Commented out because it is done
+    chi_square_test(df1, nominal_vars1, target_var, alpha=0.05,
+                    output_file="chi_square_results_df1.txt")  # Commented out because it is done
+    chi_square_test(df2, nominal_vars2, target_var, alpha=0.05,
+                    output_file="chi_square_results_df2.txt")  # Commented out because it is done
 
     # PREPROCESSING
     # FIXME CHANGE THE NAMES OF THE COLUMNS THAT ARE OBVIOUSLY THE SAME ONE IN BOTH DATAFRAMES
@@ -413,7 +417,7 @@ if __name__ == '__main__':
     df1[target_var] = df1[target_var].map(pcr_mapping)
     df2[target_var] = df2[target_var].map(pcr_mapping)
 
-    # print_description_and_info(df1, df2, file="updated_dataframes_summary.txt") # Commented out because it is done
+    print_description_and_info(df1, df2, file="updated_dataframes_summary.txt")  # Commented out because it is done
 
     df1.to_csv(os.path.join(ROOT, "updated_df1.csv"))
     df2.to_csv(os.path.join(ROOT, "updated_df2.csv"))
@@ -428,13 +432,16 @@ if __name__ == '__main__':
     df2_premerge = df2[cols]
     df = pd.concat([df1_premerge, df2_premerge], ignore_index=True)
 
-    # print_description_and_info(df, file="merged_df_description.txt") # Commented out because it is done
-    # multibar_plots(df, target_var, quantitative_vars2, time_vars2, nominal_vars2, save_name="merged_df_plot.png") # Commented out because it is done
-    # calculate_correlations(df, quantitative_vars2, file1="merged_correlation.txt") # commented out because it is done
-    # chi_square_test(df, nominal_vars2, target_var, alpha=0.05, output_file="merged_chi_square_results_df.txt") # Commented out because it is done
-    print_non_param_homogeneity_tests(df, quantitative_vars2, target_var, os.path.join(ROOT, "merged_quantitative_tests.txt"))
+    print_description_and_info(df, file="merged_df_description.txt")  # Commented out because it is done
+    multibar_plots(df, target_var, quantitative_vars2, time_vars2, nominal_vars2,
+                   save_name="merged_df_plot.png")  # Commented out because it is done
+    calculate_correlations(df, quantitative_vars2, file1="merged_correlation.txt")  # commented out because it is done
+    chi_square_test(df, nominal_vars2, target_var, alpha=0.05,
+                    output_file="merged_chi_square_results_df.txt")  # Commented out because it is done
+    print_non_param_homogeneity_tests(df, quantitative_vars2, target_var,
+                                      os.path.join(ROOT, "merged_quantitative_tests.txt"))
     print_class_balance(df, target_var, file=os.path.join(ROOT, "merged_class_balance.txt"))
-    # df.to_csv(os.path.join(ROOT, "merged_cols_df.csv"))
+    df.to_csv(os.path.join(ROOT, "merged_cols_df.csv"))
 
     # CHANGE THE DATES TO A USABLE FORMAT
     #      OPTION 1: Treat a year as a cycle and embed it with two polar coordinates
@@ -457,34 +464,36 @@ if __name__ == '__main__':
         df[predictor + '_dayofmonth'] = df[predictor].dt.day
         df[predictor + '_dayofyear'] = df[predictor].dt.dayofyear
         df[predictor + '_dayofweek'] = df[predictor].dt.dayofweek
-        new_ordinal += [predictor + '_year',predictor + '_month',predictor + '_dayofmonth',predictor + '_dayofyear',predictor + '_dayofweek']
-
+        new_ordinal += [predictor + '_year', predictor + '_month', predictor + '_dayofmonth', predictor + '_dayofyear',
+                        predictor + '_dayofweek']
 
     ordinal_vars2 += new_ordinal
 
     # SCALE QUANTITATIVE VARIABLES AND BOXPLOTS
-    # save_boxplots_and_histograms(df, quantitative_vars=quantitative_vars2, save_dir=ROOT, file_name='merged_boxplots.png')
+    save_boxplots_and_histograms(df, quantitative_vars=quantitative_vars2, save_dir=ROOT,
+                                 file_name='merged_boxplots.png')
 
     # REMOVE OLD TIME VARIABLES
     df = df.drop(columns=time_vars2)
 
     # SAVE THE OUTPUT AND PRINT LAST DESCRIPTIONS AND PLOTS
-    # print_description_and_info(df, file="extended_df_description.txt")
-    # multibar_plots(df, target_var, quantitative_vars2, [], nominal_vars2 + ordinal_vars2,
-    #                save_name="extended_df_multibar_plot.png")
-
+    print_description_and_info(df, file="extended_df_description.txt")
+    multibar_plots(df, target_var, quantitative_vars2, [], nominal_vars2 + ordinal_vars2,
+                   save_name="extended_df_multibar_plot.png")
 
     # FINAL TESTS
-    chi_square_test(df, nominal_vars=nominal_vars2 + ordinal_vars2, target_var=target_var, output_file="extended_chi_squared_results.txt")
+    chi_square_test(df, nominal_vars=nominal_vars2 + ordinal_vars2, target_var=target_var,
+                    output_file="extended_chi_squared_results.txt")
     calculate_correlations(df, quantitative_vars2, file1="extended_correlations.txt")
-    print_non_param_homogeneity_tests(df, quantitative_vars2, target_var, os.path.join(ROOT, "extended_quantitative_tests.txt"))
-    classify_and_write(df, nominal_vars2, ordinal_vars2, quantitative_vars2, os.path.join(ROOT, 'extended_variables_classification.txt'))
+    print_non_param_homogeneity_tests(df, quantitative_vars2, target_var,
+                                      os.path.join(ROOT, "extended_quantitative_tests.txt"))
+    classify_and_write(df, nominal_vars2, ordinal_vars2, quantitative_vars2,
+                       os.path.join(ROOT, 'extended_variables_classification.txt'))
     print_class_balance(df, target_var, file=os.path.join(ROOT, "extended_class_balance.txt"))
     df.to_csv(os.path.join(ROOT, "extended_df.csv"), index=False)
 
-
     # FINAL VARIABLE SELECTION USING EDA (DISCARDING IRRELEVANT VARIABLES)
-    pvalue_treshold = 0.1 # Slightly more relaxed than the original 0.5
+    pvalue_treshold = 0.1  # Slightly more relaxed than the original 0.5
     final_nominal_vars = []
     for var in nominal_vars2:
         # Create a contingency table
@@ -528,7 +537,12 @@ if __name__ == '__main__':
     # Only fever_temperature is >0.05 (~0.097)
     final_quantitative_vars = quantitative_vars2
 
-    classify_and_write(df, final_nominal_vars, final_ordinal_vars, final_quantitative_vars, os.path.join(ROOT, 'preliminary_selected_variables_classification.txt'))
+    classify_and_write(df, final_nominal_vars, final_ordinal_vars, final_quantitative_vars,
+                       os.path.join(ROOT, 'preliminary_selected_variables_classification.txt'))
+
+if __name__ == '__main__':
+    main()
+
 
 
 
